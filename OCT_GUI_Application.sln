@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 15 for Windows Desktop
+VisualStudioVersion = 15.0.36123.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OCT_GUI_Application", "OCT_GUI_Application\OCT_GUI_Application.csproj", "{9BD5A4F2-9C59-44E8-BD83-1A12D08374D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BD5A4F2-9C59-44E8-BD83-1A12D08374D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BD5A4F2-9C59-44E8-BD83-1A12D08374D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BD5A4F2-9C59-44E8-BD83-1A12D08374D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BD5A4F2-9C59-44E8-BD83-1A12D08374D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {07924861-E499-4F72-A175-4D2B1A55B42B}
+	EndGlobalSection
+EndGlobal
