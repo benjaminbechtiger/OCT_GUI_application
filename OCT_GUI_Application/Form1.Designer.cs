@@ -39,9 +39,14 @@
             this.textBoxCommand = new System.Windows.Forms.TextBox();
             this.groupBoxCommand = new System.Windows.Forms.GroupBox();
             this.pictureBoxDisplay = new System.Windows.Forms.PictureBox();
+            this.groupBoxAchsensteuerung = new System.Windows.Forms.GroupBox();
+            this.comboBoxTMCMcmd = new System.Windows.Forms.ComboBox();
+            this.textBoxTMCMval = new System.Windows.Forms.TextBox();
+            this.buttonTMCMsend = new System.Windows.Forms.Button();
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
+            this.groupBoxAchsensteuerung.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBoxProgrammwahl
@@ -154,12 +159,56 @@
             this.pictureBoxDisplay.TabIndex = 3;
             this.pictureBoxDisplay.TabStop = false;
             // 
+            // groupBoxAchsensteuerung
+            // 
+            this.groupBoxAchsensteuerung.Controls.Add(this.buttonTMCMsend);
+            this.groupBoxAchsensteuerung.Controls.Add(this.textBoxTMCMval);
+            this.groupBoxAchsensteuerung.Controls.Add(this.comboBoxTMCMcmd);
+            this.groupBoxAchsensteuerung.Location = new System.Drawing.Point(54, 315);
+            this.groupBoxAchsensteuerung.Name = "groupBoxAchsensteuerung";
+            this.groupBoxAchsensteuerung.Size = new System.Drawing.Size(1192, 77);
+            this.groupBoxAchsensteuerung.TabIndex = 4;
+            this.groupBoxAchsensteuerung.TabStop = false;
+            this.groupBoxAchsensteuerung.Text = "Achsensteuerung";
+            // 
+            // comboBoxTMCMcmd
+            // 
+            this.comboBoxTMCMcmd.FormattingEnabled = true;
+            this.comboBoxTMCMcmd.Items.AddRange(new object[] {
+            "Rot R",
+            "Rot L",
+            "Motor Stop",
+            "Move Pos"});
+            this.comboBoxTMCMcmd.Location = new System.Drawing.Point(176, 25);
+            this.comboBoxTMCMcmd.Name = "comboBoxTMCMcmd";
+            this.comboBoxTMCMcmd.Size = new System.Drawing.Size(121, 28);
+            this.comboBoxTMCMcmd.TabIndex = 0;
+            // 
+            // textBoxTMCMval
+            // 
+            this.textBoxTMCMval.Location = new System.Drawing.Point(448, 27);
+            this.textBoxTMCMval.Name = "textBoxTMCMval";
+            this.textBoxTMCMval.Size = new System.Drawing.Size(104, 26);
+            this.textBoxTMCMval.TabIndex = 1;
+            // 
+            // buttonTMCMsend
+            // 
+            this.buttonTMCMsend.BackColor = System.Drawing.Color.Turquoise;
+            this.buttonTMCMsend.Location = new System.Drawing.Point(670, 17);
+            this.buttonTMCMsend.Name = "buttonTMCMsend";
+            this.buttonTMCMsend.Size = new System.Drawing.Size(87, 46);
+            this.buttonTMCMsend.TabIndex = 2;
+            this.buttonTMCMsend.Text = "Execute";
+            this.buttonTMCMsend.UseVisualStyleBackColor = false;
+            this.buttonTMCMsend.Click += new System.EventHandler(this.buttonTMCMsend_Click);
+            // 
             // OCT_Window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.ClientSize = new System.Drawing.Size(1258, 664);
+            this.Controls.Add(this.groupBoxAchsensteuerung);
             this.Controls.Add(this.pictureBoxDisplay);
             this.Controls.Add(this.groupBoxCommand);
             this.Controls.Add(this.groupBoxProgrammwahl);
@@ -173,6 +222,8 @@
             this.groupBoxCommand.ResumeLayout(false);
             this.groupBoxCommand.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).EndInit();
+            this.groupBoxAchsensteuerung.ResumeLayout(false);
+            this.groupBoxAchsensteuerung.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -189,6 +240,10 @@
         private System.Windows.Forms.TextBox textBoxCommand;
         private System.Windows.Forms.GroupBox groupBoxCommand;
         private System.Windows.Forms.PictureBox pictureBoxDisplay;
+        private System.Windows.Forms.GroupBox groupBoxAchsensteuerung;
+        private System.Windows.Forms.TextBox textBoxTMCMval;
+        private System.Windows.Forms.ComboBox comboBoxTMCMcmd;
+        private System.Windows.Forms.Button buttonTMCMsend;
     }
 }
 
