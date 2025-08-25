@@ -45,13 +45,32 @@ namespace OCT_GUI_Application
             this.KeyDown += OCT_Window_KeyDown;
         }
 
+        /// <remarks>
+        /// Builds and sends a TMCL (Trinamic Motion Control Language) command frame 
+        /// to the TMCM-3110 controller via the serial port.
+        /// 
+        /// The TMCL frame has the following structure (9 bytes total):
+        ///   [0] = Slave address (module address)
+        ///   [1] = Command number
+        ///   [2] = Type number (often 0)
+        ///   [3] = Axis or bank number
+        ///   [4..7] = 32-bit value (big-endian, MSB first)
+        ///   [8] = Checksum (8-bit sum of bytes [0..7])
+        ///
+        /// This method calculates the checksum, assembles the frame, and transmits it.
+        /// </remarks>
+        /// <param name="slave">The module address (target TMCL device).</param>
+        /// <param name="command">The TMCL command number to send.</param>
+        /// <param name="type">The command type (typically 0 if unused).</param>
+        /// <param name="axis">The target axis or motor number (0–2 for TMCM-3110).</param>
+        /// <param name="value">A 32-bit parameter value associated with the command.</param>
         private void SendTMCLCommand(byte slave, byte command, byte type, byte axis, uint value)
         {
             byte[] frame = new byte[9];
 
             frame[0] = slave;     // Module address
             frame[1] = command;   // Command number
-            frame[2] = type;      // Type number (usually 0)
+            frame[2] = type;      // Type number (often 0)
             frame[3] = axis;      // Motor / Bank number
             frame[4] = (byte)((value >> 24) & 0xFF); // Value MSB
             frame[5] = (byte)((value >> 16) & 0xFF);
@@ -67,6 +86,8 @@ namespace OCT_GUI_Application
             spTMCM3110.Write(frame, 0, frame.Length);
         }
 
+        // Event-Handler for key Pressed
+        // -> for communication with autoclicker
         private void OCT_Window_KeyDown(object sender, KeyEventArgs e)
         {
             // Makro sendet Ctrl + E wenn beendet
@@ -74,16 +95,19 @@ namespace OCT_GUI_Application
             {
                 LogToConsole("Messung beendet, setze Anwendung zurück...");
                 System.Threading.Thread.Sleep(3000);
-                ResetMessung();
+                ResetMeasurement();
                 LogToConsole("Bereit für die nächste Messung");
             }
         }
+
+        // Log to console with Timestamp
         private void LogToConsole(string text)
         {
             textBoxConsole.AppendText($"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}");
         }
 
-        private void ResetMessung()
+        // Reset GUI for next measurement
+        private void ResetMeasurement()
         {
             pictureBoxDisplay.Visible = false;
             buttonMessStart.Enabled = true;
@@ -95,6 +119,11 @@ namespace OCT_GUI_Application
             comboBoxMessobjekt.SelectedIndex = -1;
         }
 
+        /// <summary>
+        /// Action when Application is first started. Gets executed once
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OCT_Window_Load(object sender, EventArgs e)
         {
             // Timer initialisieren
@@ -104,6 +133,11 @@ namespace OCT_GUI_Application
             mainTimer.Start();
         }
 
+        /// <summary>
+        /// Main Tick for continuous read/write actions and GUI update
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainTimer_Tick(object sender, EventArgs e)
         {
             if (comboBoxGroesse.SelectedIndex >= 0 && comboBoxMessobjekt.SelectedIndex >= 0)
@@ -204,11 +238,11 @@ namespace OCT_GUI_Application
         {
             if (comboBoxMessobjekt.SelectedIndex == 0)
             {
-                pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\impeller.png");
+                pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\impeller.gif");
             }
             else if (comboBoxMessobjekt.SelectedIndex == 1)
             {
-                pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\pumphead.png");
+                pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\pumphead.gif");
             }
             else if (comboBoxMessobjekt.SelectedIndex == -1)
             {
@@ -219,6 +253,7 @@ namespace OCT_GUI_Application
         private void buttonTMCMsend_Click(object sender, EventArgs e)
         {
             byte TMCM_command = (byte)(comboBoxTMCMcmd.SelectedIndex + 1);
+            byte TMCM_axis = (byte)(comboBoxTMCMaxs.SelectedIndex);
 
             // Parse the value as a 32-bit unsigned integer
             uint TMCM_value;
@@ -229,7 +264,7 @@ namespace OCT_GUI_Application
             }
 
             // Send the command
-            SendTMCLCommand(2, TMCM_command, 0, 0, TMCM_value); // slave=2, type=0, axis=0
+            SendTMCLCommand(2, TMCM_command, 0, TMCM_axis, TMCM_value); // slave=2, type=0, axis=0
         }
     }
 }
