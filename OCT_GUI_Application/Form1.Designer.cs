@@ -40,28 +40,38 @@
             this.groupBoxCommand = new System.Windows.Forms.GroupBox();
             this.pictureBoxDisplay = new System.Windows.Forms.PictureBox();
             this.groupBoxAchsensteuerung = new System.Windows.Forms.GroupBox();
+            this.labelTMCMaxs = new System.Windows.Forms.Label();
+            this.comboBoxTMCMaxs = new System.Windows.Forms.ComboBox();
+            this.labelTMCMval = new System.Windows.Forms.Label();
+            this.labelTMCMcmd = new System.Windows.Forms.Label();
             this.buttonTMCMsend = new System.Windows.Forms.Button();
             this.textBoxTMCMval = new System.Windows.Forms.TextBox();
             this.comboBoxTMCMcmd = new System.Windows.Forms.ComboBox();
-            this.labelTMCMcmd = new System.Windows.Forms.Label();
-            this.labelTMCMval = new System.Windows.Forms.Label();
-            this.comboBoxTMCMaxs = new System.Windows.Forms.ComboBox();
-            this.labelTMCMaxs = new System.Windows.Forms.Label();
+            this.groupBoxFile = new System.Windows.Forms.GroupBox();
+            this.labelPosAx1 = new System.Windows.Forms.Label();
+            this.labelPosAx0 = new System.Windows.Forms.Label();
+            this.labelActPos = new System.Windows.Forms.Label();
+            this.labelSelProgDisp = new System.Windows.Forms.Label();
+            this.labelSelProg = new System.Windows.Forms.Label();
+            this.buttonSave = new System.Windows.Forms.Button();
+            this.buttonDevMode = new System.Windows.Forms.Button();
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
             this.groupBoxAchsensteuerung.SuspendLayout();
+            this.groupBoxFile.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBoxProgrammwahl
             // 
+            this.groupBoxProgrammwahl.Controls.Add(this.buttonDevMode);
             this.groupBoxProgrammwahl.Controls.Add(this.textBoxConsole);
             this.groupBoxProgrammwahl.Controls.Add(this.buttonMessStart);
             this.groupBoxProgrammwahl.Controls.Add(this.labelGroesse);
             this.groupBoxProgrammwahl.Controls.Add(this.labelMessobjekt);
             this.groupBoxProgrammwahl.Controls.Add(this.comboBoxGroesse);
             this.groupBoxProgrammwahl.Controls.Add(this.comboBoxMessobjekt);
-            this.groupBoxProgrammwahl.Location = new System.Drawing.Point(470, 12);
+            this.groupBoxProgrammwahl.Location = new System.Drawing.Point(447, 12);
             this.groupBoxProgrammwahl.Name = "groupBoxProgrammwahl";
             this.groupBoxProgrammwahl.Size = new System.Drawing.Size(776, 269);
             this.groupBoxProgrammwahl.TabIndex = 0;
@@ -156,9 +166,9 @@
             // 
             // pictureBoxDisplay
             // 
-            this.pictureBoxDisplay.Location = new System.Drawing.Point(54, 22);
+            this.pictureBoxDisplay.Location = new System.Drawing.Point(33, 22);
             this.pictureBoxDisplay.Name = "pictureBoxDisplay";
-            this.pictureBoxDisplay.Size = new System.Drawing.Size(341, 259);
+            this.pictureBoxDisplay.Size = new System.Drawing.Size(259, 259);
             this.pictureBoxDisplay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBoxDisplay.TabIndex = 3;
             this.pictureBoxDisplay.TabStop = false;
@@ -172,12 +182,52 @@
             this.groupBoxAchsensteuerung.Controls.Add(this.buttonTMCMsend);
             this.groupBoxAchsensteuerung.Controls.Add(this.textBoxTMCMval);
             this.groupBoxAchsensteuerung.Controls.Add(this.comboBoxTMCMcmd);
-            this.groupBoxAchsensteuerung.Location = new System.Drawing.Point(54, 315);
+            this.groupBoxAchsensteuerung.Location = new System.Drawing.Point(33, 315);
             this.groupBoxAchsensteuerung.Name = "groupBoxAchsensteuerung";
-            this.groupBoxAchsensteuerung.Size = new System.Drawing.Size(341, 254);
+            this.groupBoxAchsensteuerung.Size = new System.Drawing.Size(371, 254);
             this.groupBoxAchsensteuerung.TabIndex = 4;
             this.groupBoxAchsensteuerung.TabStop = false;
             this.groupBoxAchsensteuerung.Text = "Achsensteuerung";
+            // 
+            // labelTMCMaxs
+            // 
+            this.labelTMCMaxs.AutoSize = true;
+            this.labelTMCMaxs.Location = new System.Drawing.Point(20, 82);
+            this.labelTMCMaxs.Name = "labelTMCMaxs";
+            this.labelTMCMaxs.Size = new System.Drawing.Size(54, 20);
+            this.labelTMCMaxs.TabIndex = 6;
+            this.labelTMCMaxs.Text = "Motor:";
+            // 
+            // comboBoxTMCMaxs
+            // 
+            this.comboBoxTMCMaxs.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.comboBoxTMCMaxs.FormattingEnabled = true;
+            this.comboBoxTMCMaxs.Items.AddRange(new object[] {
+            "Achse 1",
+            "Achse 2",
+            "Achse 3"});
+            this.comboBoxTMCMaxs.Location = new System.Drawing.Point(152, 79);
+            this.comboBoxTMCMaxs.Name = "comboBoxTMCMaxs";
+            this.comboBoxTMCMaxs.Size = new System.Drawing.Size(174, 28);
+            this.comboBoxTMCMaxs.TabIndex = 5;
+            // 
+            // labelTMCMval
+            // 
+            this.labelTMCMval.AutoSize = true;
+            this.labelTMCMval.Location = new System.Drawing.Point(20, 133);
+            this.labelTMCMval.Name = "labelTMCMval";
+            this.labelTMCMval.Size = new System.Drawing.Size(47, 20);
+            this.labelTMCMval.TabIndex = 4;
+            this.labelTMCMval.Text = "Wert:";
+            // 
+            // labelTMCMcmd
+            // 
+            this.labelTMCMcmd.AutoSize = true;
+            this.labelTMCMcmd.Location = new System.Drawing.Point(20, 32);
+            this.labelTMCMcmd.Name = "labelTMCMcmd";
+            this.labelTMCMcmd.Size = new System.Drawing.Size(94, 20);
+            this.labelTMCMcmd.TabIndex = 3;
+            this.labelTMCMcmd.Text = "Kommando:";
             // 
             // buttonTMCMsend
             // 
@@ -211,45 +261,90 @@
             this.comboBoxTMCMcmd.Size = new System.Drawing.Size(174, 28);
             this.comboBoxTMCMcmd.TabIndex = 0;
             // 
-            // labelTMCMcmd
+            // groupBoxFile
             // 
-            this.labelTMCMcmd.AutoSize = true;
-            this.labelTMCMcmd.Location = new System.Drawing.Point(20, 32);
-            this.labelTMCMcmd.Name = "labelTMCMcmd";
-            this.labelTMCMcmd.Size = new System.Drawing.Size(94, 20);
-            this.labelTMCMcmd.TabIndex = 3;
-            this.labelTMCMcmd.Text = "Kommando:";
+            this.groupBoxFile.Controls.Add(this.buttonSave);
+            this.groupBoxFile.Controls.Add(this.labelPosAx1);
+            this.groupBoxFile.Controls.Add(this.labelPosAx0);
+            this.groupBoxFile.Controls.Add(this.labelActPos);
+            this.groupBoxFile.Controls.Add(this.labelSelProgDisp);
+            this.groupBoxFile.Controls.Add(this.labelSelProg);
+            this.groupBoxFile.Location = new System.Drawing.Point(447, 315);
+            this.groupBoxFile.Name = "groupBoxFile";
+            this.groupBoxFile.Size = new System.Drawing.Size(776, 254);
+            this.groupBoxFile.TabIndex = 5;
+            this.groupBoxFile.TabStop = false;
+            this.groupBoxFile.Text = "Programmverwaltung";
             // 
-            // labelTMCMval
+            // labelPosAx1
             // 
-            this.labelTMCMval.AutoSize = true;
-            this.labelTMCMval.Location = new System.Drawing.Point(20, 133);
-            this.labelTMCMval.Name = "labelTMCMval";
-            this.labelTMCMval.Size = new System.Drawing.Size(47, 20);
-            this.labelTMCMval.TabIndex = 4;
-            this.labelTMCMval.Text = "Wert:";
+            this.labelPosAx1.AutoSize = true;
+            this.labelPosAx1.ForeColor = System.Drawing.Color.Blue;
+            this.labelPosAx1.Location = new System.Drawing.Point(357, 64);
+            this.labelPosAx1.Name = "labelPosAx1";
+            this.labelPosAx1.Size = new System.Drawing.Size(21, 20);
+            this.labelPosAx1.TabIndex = 4;
+            this.labelPosAx1.Text = "...";
             // 
-            // comboBoxTMCMaxs
+            // labelPosAx0
             // 
-            this.comboBoxTMCMaxs.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.comboBoxTMCMaxs.FormattingEnabled = true;
-            this.comboBoxTMCMaxs.Items.AddRange(new object[] {
-            "Achse 1",
-            "Achse 2",
-            "Achse 3"});
-            this.comboBoxTMCMaxs.Location = new System.Drawing.Point(152, 79);
-            this.comboBoxTMCMaxs.Name = "comboBoxTMCMaxs";
-            this.comboBoxTMCMaxs.Size = new System.Drawing.Size(174, 28);
-            this.comboBoxTMCMaxs.TabIndex = 5;
+            this.labelPosAx0.AutoSize = true;
+            this.labelPosAx0.ForeColor = System.Drawing.Color.Crimson;
+            this.labelPosAx0.Location = new System.Drawing.Point(240, 64);
+            this.labelPosAx0.Name = "labelPosAx0";
+            this.labelPosAx0.Size = new System.Drawing.Size(21, 20);
+            this.labelPosAx0.TabIndex = 3;
+            this.labelPosAx0.Text = "...";
             // 
-            // labelTMCMaxs
+            // labelActPos
             // 
-            this.labelTMCMaxs.AutoSize = true;
-            this.labelTMCMaxs.Location = new System.Drawing.Point(20, 82);
-            this.labelTMCMaxs.Name = "labelTMCMaxs";
-            this.labelTMCMaxs.Size = new System.Drawing.Size(54, 20);
-            this.labelTMCMaxs.TabIndex = 6;
-            this.labelTMCMaxs.Text = "Motor:";
+            this.labelActPos.AutoSize = true;
+            this.labelActPos.Location = new System.Drawing.Point(32, 64);
+            this.labelActPos.Name = "labelActPos";
+            this.labelActPos.Size = new System.Drawing.Size(190, 20);
+            this.labelActPos.TabIndex = 2;
+            this.labelActPos.Text = "Aktuelle Position [μsteps]:";
+            // 
+            // labelSelProgDisp
+            // 
+            this.labelSelProgDisp.AutoSize = true;
+            this.labelSelProgDisp.ForeColor = System.Drawing.Color.Yellow;
+            this.labelSelProgDisp.Location = new System.Drawing.Point(240, 32);
+            this.labelSelProgDisp.Name = "labelSelProgDisp";
+            this.labelSelProgDisp.Size = new System.Drawing.Size(21, 20);
+            this.labelSelProgDisp.TabIndex = 1;
+            this.labelSelProgDisp.Text = "...";
+            // 
+            // labelSelProg
+            // 
+            this.labelSelProg.AutoSize = true;
+            this.labelSelProg.Location = new System.Drawing.Point(32, 32);
+            this.labelSelProg.Name = "labelSelProg";
+            this.labelSelProg.Size = new System.Drawing.Size(190, 20);
+            this.labelSelProg.TabIndex = 0;
+            this.labelSelProg.Text = "Ausgewähltes Programm:";
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonSave.Image = ((System.Drawing.Image)(resources.GetObject("buttonSave.Image")));
+            this.buttonSave.Location = new System.Drawing.Point(698, 14);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(72, 70);
+            this.buttonSave.TabIndex = 5;
+            this.buttonSave.UseVisualStyleBackColor = false;
+            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            // 
+            // buttonDevMode
+            // 
+            this.buttonDevMode.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonDevMode.Location = new System.Drawing.Point(698, 100);
+            this.buttonDevMode.Name = "buttonDevMode";
+            this.buttonDevMode.Size = new System.Drawing.Size(55, 37);
+            this.buttonDevMode.TabIndex = 6;
+            this.buttonDevMode.Text = "Dev";
+            this.buttonDevMode.UseVisualStyleBackColor = false;
+            this.buttonDevMode.Click += new System.EventHandler(this.buttonDevMode_Click);
             // 
             // OCT_Window
             // 
@@ -257,6 +352,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.ClientSize = new System.Drawing.Size(1258, 664);
+            this.Controls.Add(this.groupBoxFile);
             this.Controls.Add(this.groupBoxAchsensteuerung);
             this.Controls.Add(this.pictureBoxDisplay);
             this.Controls.Add(this.groupBoxCommand);
@@ -273,6 +369,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).EndInit();
             this.groupBoxAchsensteuerung.ResumeLayout(false);
             this.groupBoxAchsensteuerung.PerformLayout();
+            this.groupBoxFile.ResumeLayout(false);
+            this.groupBoxFile.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -297,6 +395,14 @@
         private System.Windows.Forms.ComboBox comboBoxTMCMaxs;
         private System.Windows.Forms.Label labelTMCMval;
         private System.Windows.Forms.Label labelTMCMcmd;
+        private System.Windows.Forms.GroupBox groupBoxFile;
+        private System.Windows.Forms.Label labelSelProgDisp;
+        private System.Windows.Forms.Label labelSelProg;
+        private System.Windows.Forms.Label labelActPos;
+        private System.Windows.Forms.Label labelPosAx1;
+        private System.Windows.Forms.Label labelPosAx0;
+        private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.Button buttonDevMode;
     }
 }
 
