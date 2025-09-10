@@ -27,6 +27,7 @@ namespace OCT_GUI_Application
         List<OCTProgram> programs = new List<OCTProgram>();
 
         private Timer mainTimer;
+        private TMCM3110Controller tmcm3110Controller;
 
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -42,6 +43,7 @@ namespace OCT_GUI_Application
                 spTMCM3110.Open();
                 if (spTMCM3110.IsOpen)
                 {
+                    tmcm3110Controller = new TMCM3110Controller(spTMCM3110);
                     Console.WriteLine("Serial port opened successfully!");
                 }
             }
@@ -98,96 +100,6 @@ namespace OCT_GUI_Application
         private void SavePrograms()
         {
             File.WriteAllLines(csvPath, programs.Select(p => p.ToString()));
-        }
-
-
-        /// <remarks>
-        /// Builds and sends a TMCL (Trinamic Motion Control Language) command frame 
-        /// to the TMCM-3110 controller via the serial port.
-        /// 
-        /// The TMCL frame has the following structure (9 bytes total):
-        ///   [0] = Slave address (module address)
-        ///   [1] = Command number
-        ///   [2] = Type number (often 0)
-        ///   [3] = Axis or bank number
-        ///   [4..7] = 32-bit value (big-endian, MSB first)
-        ///   [8] = Checksum (8-bit sum of bytes [0..7])
-        ///
-        /// This method calculates the checksum, assembles the frame, and transmits it.
-        /// </remarks>
-        /// <param name="slave">The module address (target TMCL device).</param>
-        /// <param name="command">The TMCL command number to send.</param>
-        /// <param name="type">The command type (typically 0 if unused).</param>
-        /// <param name="axis">The target axis or motor number (0–2 for TMCM-3110).</param>
-        /// <param name="value">A 32-bit parameter value associated with the command.</param>
-        private bool SendTMCLCommand(byte slave, byte command, byte type, byte axis, uint value, out int replyValue, int timeoutMs = 50)
-        {
-            replyValue = 0;
-            byte[] frame = new byte[9];
-
-            frame[0] = slave;     // Module address
-            frame[1] = command;   // Command number
-            frame[2] = type;      // Type number (often 0)
-            frame[3] = axis;      // Motor / Bank number
-            frame[4] = (byte)((value >> 24) & 0xFF);
-            frame[5] = (byte)((value >> 16) & 0xFF);
-            frame[6] = (byte)((value >> 8) & 0xFF);
-            frame[7] = (byte)(value & 0xFF);
-
-            // Checksum = sum of bytes 0..7
-            byte checksum = frame[0];
-            for (int i = 1; i < 8; i++)
-                checksum += frame[i];
-            frame[8] = checksum;
-
-            // Send the frame
-            spTMCM3110.Write(frame, 0, frame.Length);
-            spTMCM3110.BaseStream.Flush(); // ensure it's sent immediately
-
-            // Wait for reply
-            DateTime start = DateTime.Now;
-            while (spTMCM3110.BytesToRead < 9)
-            {
-                if ((DateTime.Now - start).TotalMilliseconds > timeoutMs)
-                {
-                    return false; // timeout
-                }
-                System.Threading.Thread.Sleep(1);
-            }
-
-            // Read the 9-byte reply
-            byte[] response = new byte[9];
-            int read = spTMCM3110.Read(response, 0, 9);
-            if (read < 9) return false;
-
-            // Verify checksum
-            byte sum = response[0];
-            for (int i = 1; i < 8; i++)
-                sum += response[i];
-            if (sum != response[8]) return false;
-
-            // Check TMCL status
-            if (response[2] != 100) return false;
-
-            // Extract signed 32-bit value from bytes [4..7]
-            replyValue = (response[4] << 24) |
-                         (response[5] << 16) |
-                         (response[6] << 8) |
-                          response[7];
-
-            return true;
-        }
-
-        private bool TMCM_3110_write(byte command, byte type, byte axis, uint w_value)
-        {
-            bool TMCL_reply_status = SendTMCLCommand(2, command, type, axis, w_value, out int reply);
-            return TMCL_reply_status;
-        }
-
-        private bool TMCM_3110_read(byte command, byte type, byte axis, out int r_value)
-        {
-            bool TMCL_reply_status = SendTMCLCommand(2, command, type, axis, 0, out r_value);
-            return TMCL_reply_status;
         }
 
         // Event-Handler for key Pressed
@@ -265,8 +177,8 @@ namespace OCT_GUI_Application
                 buttonMessStart.Visible = false;
             }
 
-            TMCM_3110_read(6, 1, 0, out pos_ax0);
-            TMCM_3110_read(6, 1, 1, out pos_ax1);
+            tmcm3110Controller.Read(6, 1, 0, out pos_ax0);
+            tmcm3110Controller.Read(6, 1, 1, out pos_ax1);
             labelPosAx0.Text = pos_ax0.ToString();
             labelPosAx1.Text = pos_ax1.ToString();
 
@@ -315,8 +227,8 @@ namespace OCT_GUI_Application
 
             LogToConsole("Starte Makro: " + macroFile);
 
-            TMCM_3110_write(4, 0, 0, unchecked((uint)programs[selectedProgram].Axis1));
-            TMCM_3110_write(4, 0, 1, unchecked((uint)programs[selectedProgram].Axis2));
+            tmcm3110Controller.Write(4, 0, 0, unchecked((uint)programs[selectedProgram].Axis1));
+            tmcm3110Controller.Write(4, 0, 1, unchecked((uint)programs[selectedProgram].Axis2));
 
             // Makro Rekorder starten
             try
@@ -388,7 +300,7 @@ namespace OCT_GUI_Application
             uint TMCM_value = unchecked((uint)signedValue);
 
             // Send the command
-            TMCM_3110_write(TMCM_command, 0, TMCM_axis, TMCM_value);
+            tmcm3110Controller.Write(TMCM_command, 0, TMCM_axis, TMCM_value);
 
             LogToConsole($"Sent Command={TMCM_command}, Axis={TMCM_axis}, Value={signedValue} (raw=0x{TMCM_value:X8})");
         }
