@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OCT_Window));
             this.groupBoxProgrammwahl = new System.Windows.Forms.GroupBox();
+            this.buttonDevMode = new System.Windows.Forms.Button();
             this.textBoxConsole = new System.Windows.Forms.TextBox();
             this.buttonMessStart = new System.Windows.Forms.Button();
             this.labelGroesse = new System.Windows.Forms.Label();
@@ -48,13 +49,12 @@
             this.textBoxTMCMval = new System.Windows.Forms.TextBox();
             this.comboBoxTMCMcmd = new System.Windows.Forms.ComboBox();
             this.groupBoxFile = new System.Windows.Forms.GroupBox();
+            this.buttonSave = new System.Windows.Forms.Button();
             this.labelPosAx1 = new System.Windows.Forms.Label();
             this.labelPosAx0 = new System.Windows.Forms.Label();
             this.labelActPos = new System.Windows.Forms.Label();
             this.labelSelProgDisp = new System.Windows.Forms.Label();
             this.labelSelProg = new System.Windows.Forms.Label();
-            this.buttonSave = new System.Windows.Forms.Button();
-            this.buttonDevMode = new System.Windows.Forms.Button();
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
@@ -77,6 +77,17 @@
             this.groupBoxProgrammwahl.TabIndex = 0;
             this.groupBoxProgrammwahl.TabStop = false;
             this.groupBoxProgrammwahl.Text = "Programmwahl";
+            // 
+            // buttonDevMode
+            // 
+            this.buttonDevMode.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonDevMode.Location = new System.Drawing.Point(698, 100);
+            this.buttonDevMode.Name = "buttonDevMode";
+            this.buttonDevMode.Size = new System.Drawing.Size(55, 37);
+            this.buttonDevMode.TabIndex = 6;
+            this.buttonDevMode.Text = "Dev";
+            this.buttonDevMode.UseVisualStyleBackColor = false;
+            this.buttonDevMode.Click += new System.EventHandler(this.buttonDevMode_Click);
             // 
             // textBoxConsole
             // 
@@ -203,9 +214,9 @@
             this.comboBoxTMCMaxs.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.comboBoxTMCMaxs.FormattingEnabled = true;
             this.comboBoxTMCMaxs.Items.AddRange(new object[] {
+            "Achse 0",
             "Achse 1",
-            "Achse 2",
-            "Achse 3"});
+            "Achse 2"});
             this.comboBoxTMCMaxs.Location = new System.Drawing.Point(152, 79);
             this.comboBoxTMCMaxs.Name = "comboBoxTMCMaxs";
             this.comboBoxTMCMaxs.Size = new System.Drawing.Size(174, 28);
@@ -255,7 +266,8 @@
             "Rotation Rechts",
             "Rotation Links",
             "Motor Stop",
-            "Bewege auf Position"});
+            "Bewege Absolut",
+            "Referenzfahrt Start"});
             this.comboBoxTMCMcmd.Location = new System.Drawing.Point(152, 29);
             this.comboBoxTMCMcmd.Name = "comboBoxTMCMcmd";
             this.comboBoxTMCMcmd.Size = new System.Drawing.Size(174, 28);
@@ -275,6 +287,17 @@
             this.groupBoxFile.TabIndex = 5;
             this.groupBoxFile.TabStop = false;
             this.groupBoxFile.Text = "Programmverwaltung";
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonSave.Image = ((System.Drawing.Image)(resources.GetObject("buttonSave.Image")));
+            this.buttonSave.Location = new System.Drawing.Point(698, 14);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(72, 70);
+            this.buttonSave.TabIndex = 5;
+            this.buttonSave.UseVisualStyleBackColor = false;
+            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
             // 
             // labelPosAx1
             // 
@@ -323,28 +346,6 @@
             this.labelSelProg.Size = new System.Drawing.Size(190, 20);
             this.labelSelProg.TabIndex = 0;
             this.labelSelProg.Text = "Ausgewähltes Programm:";
-            // 
-            // buttonSave
-            // 
-            this.buttonSave.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.buttonSave.Image = ((System.Drawing.Image)(resources.GetObject("buttonSave.Image")));
-            this.buttonSave.Location = new System.Drawing.Point(698, 14);
-            this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(72, 70);
-            this.buttonSave.TabIndex = 5;
-            this.buttonSave.UseVisualStyleBackColor = false;
-            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
-            // 
-            // buttonDevMode
-            // 
-            this.buttonDevMode.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.buttonDevMode.Location = new System.Drawing.Point(698, 100);
-            this.buttonDevMode.Name = "buttonDevMode";
-            this.buttonDevMode.Size = new System.Drawing.Size(55, 37);
-            this.buttonDevMode.TabIndex = 6;
-            this.buttonDevMode.Text = "Dev";
-            this.buttonDevMode.UseVisualStyleBackColor = false;
-            this.buttonDevMode.Click += new System.EventHandler(this.buttonDevMode_Click);
             // 
             // OCT_Window
             // 

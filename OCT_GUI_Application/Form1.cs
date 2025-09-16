@@ -15,8 +15,8 @@ namespace OCT_GUI_Application
 {
     public partial class OCT_Window : Form
     {
-        int pos_ax0;
-        int pos_ax1;
+        double pos_ax0;
+        double pos_ax1;
 
         string playerPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\00_MacroRecorder\MacroRecorder.exe";
         string macroFile = "";
@@ -71,10 +71,10 @@ namespace OCT_GUI_Application
                 // Default values if file missing
                 programs = new List<OCTProgram>()
                 {
+                    new OCTProgram(program[0], 0, 0),
                     new OCTProgram(program[1], 0, 0),
                     new OCTProgram(program[2], 0, 0),
-                    new OCTProgram(program[3], 0, 0),
-                    new OCTProgram(program[4], 0, 0)
+                    new OCTProgram(program[3], 0, 0)
                 };
 
                 SavePrograms(); // create file with defaults
@@ -87,10 +87,10 @@ namespace OCT_GUI_Application
                 {
                     var parts = line.Split(',');
                     if (parts.Length == 3 &&
-                        int.TryParse(parts[1], out int ax1) &&
-                        int.TryParse(parts[2], out int ax2))
+                        int.TryParse(parts[1], out int ax0) &&
+                        int.TryParse(parts[2], out int ax1))
                     {
-                        programs.Add(new OCTProgram(parts[0], ax1, ax2));
+                        programs.Add(new OCTProgram(parts[0], ax0, ax1));
                     }
                 }
                 LogToConsole("Programs loaded from CSV.");
@@ -177,8 +177,8 @@ namespace OCT_GUI_Application
                 buttonMessStart.Visible = false;
             }
 
-            tmcm3110Controller.Read(6, 1, 0, out pos_ax0);
-            tmcm3110Controller.Read(6, 1, 1, out pos_ax1);
+            tmcm3110Controller.GetActualPosition_mm(0, out pos_ax0);
+            tmcm3110Controller.GetActualPosition_mm(1, out pos_ax1);
             labelPosAx0.Text = pos_ax0.ToString();
             labelPosAx1.Text = pos_ax1.ToString();
 
@@ -227,8 +227,8 @@ namespace OCT_GUI_Application
 
             LogToConsole("Starte Makro: " + macroFile);
 
-            tmcm3110Controller.Write(4, 0, 0, unchecked((uint)programs[selectedProgram].Axis1));
-            tmcm3110Controller.Write(4, 0, 1, unchecked((uint)programs[selectedProgram].Axis2));
+            tmcm3110Controller.MovePositionAbs(0, programs[selectedProgram].Axis0);
+            tmcm3110Controller.MovePositionAbs(1, programs[selectedProgram].Axis1);
 
             // Makro Rekorder starten
             try
@@ -286,23 +286,38 @@ namespace OCT_GUI_Application
 
         private void buttonTMCMsend_Click(object sender, EventArgs e)
         {
-            byte TMCM_command = (byte)(comboBoxTMCMcmd.SelectedIndex + 1);
+            byte TMCM_command = (byte)(comboBoxTMCMcmd.SelectedIndex);
             byte TMCM_axis = (byte)(comboBoxTMCMaxs.SelectedIndex);
 
             // Parse the value as signed int
-            if (!int.TryParse(textBoxTMCMval.Text, out int signedValue))
+            if (!int.TryParse(textBoxTMCMval.Text, out int TMCM_value))
             {
                 LogToConsole("Please enter a valid signed integer!");
                 return;
             }
 
-            // Convert signed int -> uint (bitwise cast)
-            uint TMCM_value = unchecked((uint)signedValue);
+            switch (TMCM_command)
+            {
+                case 0:
+                    tmcm3110Controller.RotateRight(TMCM_axis, TMCM_value);
+                    break;
+                case 1:
+                    tmcm3110Controller.RotateLeft(TMCM_axis, TMCM_value);
+                    break;
+                case 2:
+                    tmcm3110Controller.MotorStop(TMCM_axis);
+                    break;
+                case 3:
+                    tmcm3110Controller.MovePositionAbs(TMCM_axis, TMCM_value);
+                    break;
+                case 4:
+                    tmcm3110Controller.StartReferenceSearch(TMCM_axis);
+                    break;
+                default:
+                    break;
+            }
 
-            // Send the command
-            tmcm3110Controller.Write(TMCM_command, 0, TMCM_axis, TMCM_value);
-
-            LogToConsole($"Sent Command={TMCM_command}, Axis={TMCM_axis}, Value={signedValue} (raw=0x{TMCM_value:X8})");
+            LogToConsole($"Sent Command={TMCM_command}, Axis={TMCM_axis}, Value={TMCM_value} (raw=0x{TMCM_value:X8})");
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
@@ -312,15 +327,15 @@ namespace OCT_GUI_Application
                 var selectedProg = programs[selectedProgram];
 
                 // Overwrite axis values with the *current live values*
-                selectedProg.Axis1 = pos_ax0;
-                selectedProg.Axis2 = pos_ax1;
+                selectedProg.Axis0 = pos_ax0;
+                selectedProg.Axis1 = pos_ax1;
 
                 // Save back to CSV
                 SavePrograms();
 
                 // UI feedback
                 buttonSave.BackColor = Color.Gray;
-                LogToConsole($"CSV gespeichert! {selectedProg.Name} -> Ax1={selectedProg.Axis1}, Ax2={selectedProg.Axis2}");
+                LogToConsole($"CSV gespeichert! {selectedProg.Name} -> Ax0={selectedProg.Axis0}, Ax1={selectedProg.Axis1}");
                 buttonSave.BackColor = SystemColors.ButtonFace;
             }
         }

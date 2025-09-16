@@ -77,14 +77,103 @@ namespace OCT_GUI_Application
             return true;
         }
 
-        public bool Write(byte command, byte type, byte axis, uint value)
+        private bool Write(byte command, byte type, byte axis, uint value)
         {
             return SendTMCLCommand(command, type, axis, value, out _);
         }
 
-        public bool Read(byte command, byte type, byte axis, out int value)
+        private bool Read(byte command, byte type, byte axis, out int value)
         {
             return SendTMCLCommand(command, type, axis, 0, out value);
+        }
+
+        // Referenzfahrt starten
+        public bool StartReferenceSearch(byte axis)
+        {
+            if (axis > 2) return false;
+            return Write(13, 0, axis, 0);
+        }
+
+        // Auf eine Absolute Position in mm bewegen (+/-)
+        public bool MovePositionAbs(byte axis, double position_mm)
+        {
+            if (axis > 2) return false;
+
+            int pitch;
+            int usteps_per_revolution;
+
+            switch (axis)
+            {
+                case 0:
+                    pitch = 3;
+                    usteps_per_revolution = 10240;
+                    break;
+                case 1:
+                    pitch = 8;
+                    usteps_per_revolution = 12800;
+                    break;
+                default:
+                    pitch = 1;
+                    usteps_per_revolution = 12800;
+                    break;
+            }
+            double position_usteps_double = position_mm / pitch * usteps_per_revolution;
+            int position_usteps = (int)Math.Round(position_usteps_double, MidpointRounding.AwayFromZero);
+            uint position_uint = unchecked((uint)position_usteps);
+            return Write(4, 0, axis, position_uint);
+        }
+
+        // Achsenposition in mm auslesen
+        public bool GetActualPosition_mm(byte axis, out double position_mm)
+        {
+            position_mm = 0;
+
+            if (axis > 2) return false;
+
+            bool read_status = Read(6, 1, axis, out int position_usteps);
+
+            int pitch;
+            int usteps_per_revolution;
+
+            switch (axis)
+            {
+                case 0:
+                    pitch = 3;
+                    usteps_per_revolution = 10240;
+                    break;
+                case 1:
+                    pitch = 8;
+                    usteps_per_revolution = 12800;
+                    break;
+                default: // axis 2
+                    pitch = 1;
+                    usteps_per_revolution = 12800;
+                    break;
+            }
+
+            position_mm = (double)position_usteps / usteps_per_revolution * pitch;
+            return read_status;
+        }
+
+        // Achse anhalten
+        public bool MotorStop(byte axis)
+        {
+            if (axis > 2) return false;
+            return Write(3, 0, axis, 0);
+        }
+
+        // Achse kontinuierlich nach rechts drehen
+        public bool RotateRight(byte axis, int speed)
+        {
+            if (axis > 2) return false;
+            return Write(1, 0, axis, unchecked((uint)speed));
+        }
+
+        // Achse kontinuierlich nach links drehen
+        public bool RotateLeft(byte axis, int speed)
+        {
+            if (axis > 2) return false;
+            return Write(2, 0, axis, unchecked((uint)speed));
         }
     }
 }

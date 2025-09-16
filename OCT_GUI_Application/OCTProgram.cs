@@ -3,19 +3,19 @@
     internal class OCTProgram
     {
         public string Name { get; set; }
-        public int Axis1 { get; set; }
-        public int Axis2 { get; set; }
+        public double Axis0 { get; set; }
+        public double Axis1 { get; set; }
 
-        public OCTProgram(string name, int axis1, int axis2)
+        public OCTProgram(string name, int axis0, int axis1)
         {
             Name = name;
+            Axis0 = axis0;
             Axis1 = axis1;
-            Axis2 = axis2;
         }
 
         public override string ToString()
         {
-            return $"{Name},{Axis1},{Axis2}";
+            return $"{Name},{Axis0},{Axis1}";
         }
     }
 }
