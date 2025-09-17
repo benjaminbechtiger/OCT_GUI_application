@@ -30,19 +30,17 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OCT_Window));
             this.groupBoxProgrammwahl = new System.Windows.Forms.GroupBox();
-            this.buttonDevMode = new System.Windows.Forms.Button();
             this.textBoxConsole = new System.Windows.Forms.TextBox();
             this.buttonMessStart = new System.Windows.Forms.Button();
-            this.labelGroesse = new System.Windows.Forms.Label();
             this.labelMessobjekt = new System.Windows.Forms.Label();
-            this.comboBoxGroesse = new System.Windows.Forms.ComboBox();
             this.comboBoxMessobjekt = new System.Windows.Forms.ComboBox();
+            this.buttonDevMode = new System.Windows.Forms.Button();
             this.textBoxCommand = new System.Windows.Forms.TextBox();
             this.groupBoxCommand = new System.Windows.Forms.GroupBox();
             this.pictureBoxDisplay = new System.Windows.Forms.PictureBox();
             this.groupBoxAchsensteuerung = new System.Windows.Forms.GroupBox();
             this.labelTMCMaxs = new System.Windows.Forms.Label();
-            this.comboBoxTMCMaxs = new System.Windows.Forms.ComboBox();
+            this.comboBoxTMCMaxis = new System.Windows.Forms.ComboBox();
             this.labelTMCMval = new System.Windows.Forms.Label();
             this.labelTMCMcmd = new System.Windows.Forms.Label();
             this.buttonTMCMsend = new System.Windows.Forms.Button();
@@ -55,6 +53,8 @@
             this.labelActPos = new System.Windows.Forms.Label();
             this.labelSelProgDisp = new System.Windows.Forms.Label();
             this.labelSelProg = new System.Windows.Forms.Label();
+            this.labelAxis0Disp = new System.Windows.Forms.Label();
+            this.labelAxis1Disp = new System.Windows.Forms.Label();
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
@@ -64,12 +64,9 @@
             // 
             // groupBoxProgrammwahl
             // 
-            this.groupBoxProgrammwahl.Controls.Add(this.buttonDevMode);
             this.groupBoxProgrammwahl.Controls.Add(this.textBoxConsole);
             this.groupBoxProgrammwahl.Controls.Add(this.buttonMessStart);
-            this.groupBoxProgrammwahl.Controls.Add(this.labelGroesse);
             this.groupBoxProgrammwahl.Controls.Add(this.labelMessobjekt);
-            this.groupBoxProgrammwahl.Controls.Add(this.comboBoxGroesse);
             this.groupBoxProgrammwahl.Controls.Add(this.comboBoxMessobjekt);
             this.groupBoxProgrammwahl.Location = new System.Drawing.Point(447, 12);
             this.groupBoxProgrammwahl.Name = "groupBoxProgrammwahl";
@@ -78,28 +75,17 @@
             this.groupBoxProgrammwahl.TabStop = false;
             this.groupBoxProgrammwahl.Text = "Programmwahl";
             // 
-            // buttonDevMode
-            // 
-            this.buttonDevMode.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.buttonDevMode.Location = new System.Drawing.Point(698, 100);
-            this.buttonDevMode.Name = "buttonDevMode";
-            this.buttonDevMode.Size = new System.Drawing.Size(55, 37);
-            this.buttonDevMode.TabIndex = 6;
-            this.buttonDevMode.Text = "Dev";
-            this.buttonDevMode.UseVisualStyleBackColor = false;
-            this.buttonDevMode.Click += new System.EventHandler(this.buttonDevMode_Click);
-            // 
             // textBoxConsole
             // 
             this.textBoxConsole.BackColor = System.Drawing.Color.Black;
             this.textBoxConsole.Font = new System.Drawing.Font("Consolas", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBoxConsole.ForeColor = System.Drawing.SystemColors.Info;
-            this.textBoxConsole.Location = new System.Drawing.Point(32, 156);
+            this.textBoxConsole.Location = new System.Drawing.Point(32, 102);
             this.textBoxConsole.Multiline = true;
             this.textBoxConsole.Name = "textBoxConsole";
             this.textBoxConsole.ReadOnly = true;
             this.textBoxConsole.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxConsole.Size = new System.Drawing.Size(721, 98);
+            this.textBoxConsole.Size = new System.Drawing.Size(721, 152);
             this.textBoxConsole.TabIndex = 5;
             // 
             // buttonMessStart
@@ -114,15 +100,6 @@
             this.buttonMessStart.Visible = false;
             this.buttonMessStart.Click += new System.EventHandler(this.buttonMessStart_Click);
             // 
-            // labelGroesse
-            // 
-            this.labelGroesse.AutoSize = true;
-            this.labelGroesse.Location = new System.Drawing.Point(28, 100);
-            this.labelGroesse.Name = "labelGroesse";
-            this.labelGroesse.Size = new System.Drawing.Size(65, 20);
-            this.labelGroesse.TabIndex = 3;
-            this.labelGroesse.Text = "Grösse:";
-            // 
             // labelMessobjekt
             // 
             this.labelMessobjekt.AutoSize = true;
@@ -132,30 +109,31 @@
             this.labelMessobjekt.TabIndex = 2;
             this.labelMessobjekt.Text = "Zu messendes Objekt:";
             // 
-            // comboBoxGroesse
-            // 
-            this.comboBoxGroesse.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.comboBoxGroesse.FormattingEnabled = true;
-            this.comboBoxGroesse.Items.AddRange(new object[] {
-            "600",
-            "2000"});
-            this.comboBoxGroesse.Location = new System.Drawing.Point(220, 97);
-            this.comboBoxGroesse.Name = "comboBoxGroesse";
-            this.comboBoxGroesse.Size = new System.Drawing.Size(176, 28);
-            this.comboBoxGroesse.TabIndex = 1;
-            // 
             // comboBoxMessobjekt
             // 
             this.comboBoxMessobjekt.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.comboBoxMessobjekt.FormattingEnabled = true;
             this.comboBoxMessobjekt.Items.AddRange(new object[] {
-            "Impeller",
-            "Pumpenkopf"});
+            "600er Impeller",
+            "2000er Impeller",
+            "600er Pumpenkopf",
+            "2000er Pumpenkopf"});
             this.comboBoxMessobjekt.Location = new System.Drawing.Point(220, 42);
             this.comboBoxMessobjekt.Name = "comboBoxMessobjekt";
-            this.comboBoxMessobjekt.Size = new System.Drawing.Size(176, 28);
+            this.comboBoxMessobjekt.Size = new System.Drawing.Size(298, 28);
             this.comboBoxMessobjekt.TabIndex = 0;
             this.comboBoxMessobjekt.SelectedIndexChanged += new System.EventHandler(this.comboBoxMessobjekt_SelectedIndexChanged);
+            // 
+            // buttonDevMode
+            // 
+            this.buttonDevMode.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.buttonDevMode.Location = new System.Drawing.Point(1168, 286);
+            this.buttonDevMode.Name = "buttonDevMode";
+            this.buttonDevMode.Size = new System.Drawing.Size(55, 37);
+            this.buttonDevMode.TabIndex = 6;
+            this.buttonDevMode.Text = "Dev";
+            this.buttonDevMode.UseVisualStyleBackColor = false;
+            this.buttonDevMode.Click += new System.EventHandler(this.buttonDevMode_Click);
             // 
             // textBoxCommand
             // 
@@ -187,7 +165,7 @@
             // groupBoxAchsensteuerung
             // 
             this.groupBoxAchsensteuerung.Controls.Add(this.labelTMCMaxs);
-            this.groupBoxAchsensteuerung.Controls.Add(this.comboBoxTMCMaxs);
+            this.groupBoxAchsensteuerung.Controls.Add(this.comboBoxTMCMaxis);
             this.groupBoxAchsensteuerung.Controls.Add(this.labelTMCMval);
             this.groupBoxAchsensteuerung.Controls.Add(this.labelTMCMcmd);
             this.groupBoxAchsensteuerung.Controls.Add(this.buttonTMCMsend);
@@ -209,18 +187,18 @@
             this.labelTMCMaxs.TabIndex = 6;
             this.labelTMCMaxs.Text = "Motor:";
             // 
-            // comboBoxTMCMaxs
+            // comboBoxTMCMaxis
             // 
-            this.comboBoxTMCMaxs.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.comboBoxTMCMaxs.FormattingEnabled = true;
-            this.comboBoxTMCMaxs.Items.AddRange(new object[] {
+            this.comboBoxTMCMaxis.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.comboBoxTMCMaxis.FormattingEnabled = true;
+            this.comboBoxTMCMaxis.Items.AddRange(new object[] {
             "Achse 0",
             "Achse 1",
             "Achse 2"});
-            this.comboBoxTMCMaxs.Location = new System.Drawing.Point(152, 79);
-            this.comboBoxTMCMaxs.Name = "comboBoxTMCMaxs";
-            this.comboBoxTMCMaxs.Size = new System.Drawing.Size(174, 28);
-            this.comboBoxTMCMaxs.TabIndex = 5;
+            this.comboBoxTMCMaxis.Location = new System.Drawing.Point(152, 79);
+            this.comboBoxTMCMaxis.Name = "comboBoxTMCMaxis";
+            this.comboBoxTMCMaxis.Size = new System.Drawing.Size(174, 28);
+            this.comboBoxTMCMaxis.TabIndex = 5;
             // 
             // labelTMCMval
             // 
@@ -257,6 +235,7 @@
             this.textBoxTMCMval.Name = "textBoxTMCMval";
             this.textBoxTMCMval.Size = new System.Drawing.Size(174, 26);
             this.textBoxTMCMval.TabIndex = 1;
+            this.textBoxTMCMval.Text = "0";
             // 
             // comboBoxTMCMcmd
             // 
@@ -275,6 +254,8 @@
             // 
             // groupBoxFile
             // 
+            this.groupBoxFile.Controls.Add(this.labelAxis1Disp);
+            this.groupBoxFile.Controls.Add(this.labelAxis0Disp);
             this.groupBoxFile.Controls.Add(this.buttonSave);
             this.groupBoxFile.Controls.Add(this.labelPosAx1);
             this.groupBoxFile.Controls.Add(this.labelPosAx0);
@@ -303,7 +284,7 @@
             // 
             this.labelPosAx1.AutoSize = true;
             this.labelPosAx1.ForeColor = System.Drawing.Color.Blue;
-            this.labelPosAx1.Location = new System.Drawing.Point(357, 64);
+            this.labelPosAx1.Location = new System.Drawing.Point(275, 87);
             this.labelPosAx1.Name = "labelPosAx1";
             this.labelPosAx1.Size = new System.Drawing.Size(21, 20);
             this.labelPosAx1.TabIndex = 4;
@@ -313,7 +294,7 @@
             // 
             this.labelPosAx0.AutoSize = true;
             this.labelPosAx0.ForeColor = System.Drawing.Color.Crimson;
-            this.labelPosAx0.Location = new System.Drawing.Point(240, 64);
+            this.labelPosAx0.Location = new System.Drawing.Point(275, 64);
             this.labelPosAx0.Name = "labelPosAx0";
             this.labelPosAx0.Size = new System.Drawing.Size(21, 20);
             this.labelPosAx0.TabIndex = 3;
@@ -324,9 +305,9 @@
             this.labelActPos.AutoSize = true;
             this.labelActPos.Location = new System.Drawing.Point(32, 64);
             this.labelActPos.Name = "labelActPos";
-            this.labelActPos.Size = new System.Drawing.Size(190, 20);
+            this.labelActPos.Size = new System.Drawing.Size(168, 20);
             this.labelActPos.TabIndex = 2;
-            this.labelActPos.Text = "Aktuelle Position [μsteps]:";
+            this.labelActPos.Text = "Aktuelle Position [mm]:";
             // 
             // labelSelProgDisp
             // 
@@ -347,12 +328,31 @@
             this.labelSelProg.TabIndex = 0;
             this.labelSelProg.Text = "Ausgewähltes Programm:";
             // 
+            // labelAxis0Disp
+            // 
+            this.labelAxis0Disp.AutoSize = true;
+            this.labelAxis0Disp.Location = new System.Drawing.Point(240, 64);
+            this.labelAxis0Disp.Name = "labelAxis0Disp";
+            this.labelAxis0Disp.Size = new System.Drawing.Size(29, 20);
+            this.labelAxis0Disp.TabIndex = 6;
+            this.labelAxis0Disp.Text = "A0";
+            // 
+            // labelAxis1Disp
+            // 
+            this.labelAxis1Disp.AutoSize = true;
+            this.labelAxis1Disp.Location = new System.Drawing.Point(240, 87);
+            this.labelAxis1Disp.Name = "labelAxis1Disp";
+            this.labelAxis1Disp.Size = new System.Drawing.Size(29, 20);
+            this.labelAxis1Disp.TabIndex = 7;
+            this.labelAxis1Disp.Text = "A1";
+            // 
             // OCT_Window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.ClientSize = new System.Drawing.Size(1258, 664);
+            this.Controls.Add(this.buttonDevMode);
             this.Controls.Add(this.groupBoxFile);
             this.Controls.Add(this.groupBoxAchsensteuerung);
             this.Controls.Add(this.pictureBoxDisplay);
@@ -380,9 +380,7 @@
 
         private System.Windows.Forms.GroupBox groupBoxProgrammwahl;
         private System.Windows.Forms.ComboBox comboBoxMessobjekt;
-        private System.Windows.Forms.Label labelGroesse;
         private System.Windows.Forms.Label labelMessobjekt;
-        private System.Windows.Forms.ComboBox comboBoxGroesse;
         private System.Windows.Forms.Button buttonMessStart;
         private System.Windows.Forms.TextBox textBoxConsole;
         private System.Windows.Forms.TextBox textBoxCommand;
@@ -393,7 +391,7 @@
         private System.Windows.Forms.ComboBox comboBoxTMCMcmd;
         private System.Windows.Forms.Button buttonTMCMsend;
         private System.Windows.Forms.Label labelTMCMaxs;
-        private System.Windows.Forms.ComboBox comboBoxTMCMaxs;
+        private System.Windows.Forms.ComboBox comboBoxTMCMaxis;
         private System.Windows.Forms.Label labelTMCMval;
         private System.Windows.Forms.Label labelTMCMcmd;
         private System.Windows.Forms.GroupBox groupBoxFile;
@@ -404,6 +402,8 @@
         private System.Windows.Forms.Label labelPosAx0;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button buttonDevMode;
+        private System.Windows.Forms.Label labelAxis0Disp;
+        private System.Windows.Forms.Label labelAxis1Disp;
     }
 }
 

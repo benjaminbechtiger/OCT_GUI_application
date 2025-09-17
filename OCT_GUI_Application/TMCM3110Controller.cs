@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO.Ports;
 
 namespace OCT_GUI_Application
@@ -11,77 +7,121 @@ namespace OCT_GUI_Application
     {
         private readonly SerialPort _serial;
         private readonly byte _slaveAddress;
+        private readonly Action<string> _logger;
+        private bool serial_was_open = false;
 
-        public TMCM3110Controller(SerialPort serial, byte slaveAddress = 2)
+        // Konstruktor
+        public TMCM3110Controller(SerialPort serial, Action<string> logger = null, byte slaveAddress = 2)
         {
             _serial = serial ?? throw new ArgumentNullException(nameof(serial));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _slaveAddress = slaveAddress;
         }
 
+        // Datenlogger
+        private void Log(string message)
+        {
+            _logger?.Invoke(message);
+        }
+
         /// <summary>
-        /// Sendet einen TMCL Befehl an den TMCM-3110 Controller
+        /// Sendet einen TMCL Befehl an den TMCM-3110 Controller.
+        /// Stellt sicher, dass die serielle Verbindung offen ist und versucht ggf. neu zu verbinden.
         /// </summary>
         private bool SendTMCLCommand(byte command, byte type, byte axis, uint value, out int replyValue, int timeoutMs = 50)
         {
             replyValue = 0;
-            byte[] frame = new byte[9];
 
-            frame[0] = _slaveAddress;
-            frame[1] = command;
-            frame[2] = type;
-            frame[3] = axis;
-            frame[4] = (byte)((value >> 24) & 0xFF);
-            frame[5] = (byte)((value >> 16) & 0xFF);
-            frame[6] = (byte)((value >> 8) & 0xFF);
-            frame[7] = (byte)(value & 0xFF);
-
-            // Checksum
-            byte checksum = 0;
-            for (int i = 0; i < 8; i++)
-                checksum += frame[i];
-            frame[8] = checksum;
-
-            // Senden
-            _serial.Write(frame, 0, frame.Length);
-            _serial.BaseStream.Flush();
-
-            // Warten auf Antwort
-            DateTime start = DateTime.Now;
-            while (_serial.BytesToRead < 9)
+            try
             {
-                if ((DateTime.Now - start).TotalMilliseconds > timeoutMs)
-                    return false;
-                System.Threading.Thread.Sleep(1);
+                if (_serial == null)
+                    Log("Serial port object is null.");
+
+                if (!_serial.IsOpen)
+                {
+                    try
+                    {
+                        _serial.Open();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (serial_was_open) { Log($"[WARN] Unable to open serial port: {ex.Message}"); }
+                        serial_was_open = false;
+                    }
+                }
+
+                // Frame bauen
+                byte[] frame = new byte[9];
+                frame[0] = _slaveAddress;
+                frame[1] = command;
+                frame[2] = type;
+                frame[3] = axis;
+                frame[4] = (byte)((value >> 24) & 0xFF);
+                frame[5] = (byte)((value >> 16) & 0xFF);
+                frame[6] = (byte)((value >> 8) & 0xFF);
+                frame[7] = (byte)(value & 0xFF);
+
+                // Checksumme
+                byte checksum = 0;
+                for (int i = 0; i < 8; i++)
+                    checksum += frame[i];
+                frame[8] = checksum;
+
+                // Senden
+                _serial.Write(frame, 0, frame.Length);
+                _serial.BaseStream.Flush();
+
+                // Antwort abwarten
+                DateTime start = DateTime.Now;
+                while (_serial.BytesToRead < 9)
+                {
+                    if ((DateTime.Now - start).TotalMilliseconds > timeoutMs)
+                        return false;
+                    System.Threading.Thread.Sleep(1);
+                }
+
+                // Antwort lesen
+                byte[] response = new byte[9];
+                int read = _serial.Read(response, 0, 9);
+                if (read < 9) return false;
+
+                // Prüfsumme prüfen
+                byte sum = 0;
+                for (int i = 0; i < 8; i++)
+                    sum += response[i];
+                if (sum != response[8]) return false;
+
+                // Status prüfen
+                if (response[2] != 100) return false;
+
+                // 32-bit Wert auslesen
+                replyValue = (response[4] << 24) |
+                                (response[5] << 16) |
+                                (response[6] << 8) |
+                                response[7];
+
+                if (!serial_was_open) { Log("Serial Port reconnected"); }
+                serial_was_open = true;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (serial_was_open) { Log($"[ERROR] Serial communication failed: {ex.Message}"); }
+
+                try { if (_serial.IsOpen) _serial.Close(); } catch { }
             }
 
-            // Antwort lesen
-            byte[] response = new byte[9];
-            int read = _serial.Read(response, 0, 9);
-            if (read < 9) return false;
-
-            // Prüfsumme prüfen
-            byte sum = 0;
-            for (int i = 0; i < 8; i++)
-                sum += response[i];
-            if (sum != response[8]) return false;
-
-            // Status prüfen
-            if (response[2] != 100) return false;
-
-            // 32-bit Wert auslesen
-            replyValue = (response[4] << 24) |
-                         (response[5] << 16) |
-                         (response[6] << 8) |
-                          response[7];
-
-            return true;
+            return false;
         }
 
+        // Abstrahierte TMCL Write Funktion
         private bool Write(byte command, byte type, byte axis, uint value)
         {
             return SendTMCLCommand(command, type, axis, value, out _);
         }
 
+        // Abstrahierte TMCL Read Funktion
         private bool Read(byte command, byte type, byte axis, out int value)
         {
             return SendTMCLCommand(command, type, axis, 0, out value);
@@ -117,9 +157,10 @@ namespace OCT_GUI_Application
                     usteps_per_revolution = 12800;
                     break;
             }
-            double position_usteps_double = position_mm / pitch * usteps_per_revolution;
+            double position_usteps_double = Math.Round(position_mm / pitch * usteps_per_revolution, 3);
             int position_usteps = (int)Math.Round(position_usteps_double, MidpointRounding.AwayFromZero);
             uint position_uint = unchecked((uint)position_usteps);
+
             return Write(4, 0, axis, position_uint);
         }
 
@@ -151,7 +192,7 @@ namespace OCT_GUI_Application
                     break;
             }
 
-            position_mm = (double)position_usteps / usteps_per_revolution * pitch;
+            position_mm = Math.Round((double)position_usteps / usteps_per_revolution * pitch, 3);
             return read_status;
         }
 
@@ -162,17 +203,25 @@ namespace OCT_GUI_Application
             return Write(3, 0, axis, 0);
         }
 
-        // Achse kontinuierlich nach rechts drehen
-        public bool RotateRight(byte axis, int speed)
+        // Achse kontinuierlich nach rechts drehen, speed in U/min
+        public bool RotateRight(byte axis, int speed_upm)
         {
             if (axis > 2) return false;
+
+            double speed_pps = (double)speed_upm * 12800 / 60;
+            int speed = (int)Math.Round((speed_pps - 0.1105)/30.5177, MidpointRounding.AwayFromZero);
+
             return Write(1, 0, axis, unchecked((uint)speed));
         }
 
-        // Achse kontinuierlich nach links drehen
-        public bool RotateLeft(byte axis, int speed)
+        // Achse kontinuierlich nach links drehen, speed in U/min
+        public bool RotateLeft(byte axis, int speed_upm)
         {
             if (axis > 2) return false;
+
+            double speed_pps = (double)speed_upm * 12800 / 60;
+            int speed = (int)Math.Round((speed_pps - 0.1105) / 30.5177, MidpointRounding.AwayFromZero);
+
             return Write(2, 0, axis, unchecked((uint)speed));
         }
     }

@@ -1,58 +1,48 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO.Ports;
-using System.IO;
 using System.Runtime.InteropServices;
 
 namespace OCT_GUI_Application
 {
     public partial class OCT_Window : Form
     {
-        double pos_ax0;
-        double pos_ax1;
-
-        string playerPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\00_MacroRecorder\MacroRecorder.exe";
-        string macroFile = "";
-        string[] program = {"600er_Impeller", "2000er_Impeller", "600er_Pumpenkopf", "2000er_Pumpenkopf", ""};
-        int selectedProgram;
-
-        string csvPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\programs.csv";
-        List<OCTProgram> programs = new List<OCTProgram>();
-
-        private Timer mainTimer;
-        private TMCM3110Controller tmcm3110Controller;
-
+        // Interne Variabeln
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         SerialPort spTMCM3110 = new SerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
 
+        double pos_ax0;
+        double pos_ax1;
+        int selectedProgram;
+
+        string macroRecorderPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\00_MacroRecorder\MacroRecorder.exe";
+        string macroFile = "";
+
+        private Timer mainTimer;
+        private TMCM3110Controller tmcm3110Controller;
+        private FileManager programFileManager;
+
+        // Konstruktor
         public OCT_Window()
         {
             InitializeComponent();
 
+            tmcm3110Controller = new TMCM3110Controller(spTMCM3110, LogToConsole);
+            programFileManager = new FileManager(LogToConsole);
+
             try
             {      
                 spTMCM3110.Open();
-                if (spTMCM3110.IsOpen)
-                {
-                    tmcm3110Controller = new TMCM3110Controller(spTMCM3110);
-                    Console.WriteLine("Serial port opened successfully!");
-                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to open serial port: " + ex.Message);
+                LogToConsole("Failed to open serial port: " + ex.Message);
             }
 
-            LoadPrograms();
+            programFileManager.LoadPrograms();
             groupBoxAchsensteuerung.Visible = false;
             groupBoxFile.Visible = false;
             buttonDevMode.Visible = false;
@@ -64,57 +54,47 @@ namespace OCT_GUI_Application
             this.KeyDown += OCT_Window_KeyDown;
         }
 
-        private void LoadPrograms()
+        // Action when Application is first started. Gets executed once
+        private void OCT_Window_Load(object sender, EventArgs e)
         {
-            if (!File.Exists(csvPath))
-            {
-                // Default values if file missing
-                programs = new List<OCTProgram>()
-                {
-                    new OCTProgram(program[0], 0, 0),
-                    new OCTProgram(program[1], 0, 0),
-                    new OCTProgram(program[2], 0, 0),
-                    new OCTProgram(program[3], 0, 0)
-                };
+            // Timer initialisieren
+            mainTimer = new Timer();
+            mainTimer.Interval = 100; // 100 ms
+            mainTimer.Tick += MainTimer_Tick;
+            mainTimer.Start();
 
-                SavePrograms(); // create file with defaults
-                LogToConsole("CSV file not found. Created with default values.");
-            }
-            else
-            {
-                programs.Clear();
-                foreach (var line in File.ReadAllLines(csvPath))
-                {
-                    var parts = line.Split(',');
-                    if (parts.Length == 3 &&
-                        int.TryParse(parts[1], out int ax0) &&
-                        int.TryParse(parts[2], out int ax1))
-                    {
-                        programs.Add(new OCTProgram(parts[0], ax0, ax1));
-                    }
-                }
-                LogToConsole("Programs loaded from CSV.");
-            }
+            // Sicherstellen dass alle Achsen gestoppt sind
+            SafetyStop();
         }
 
-        private void SavePrograms()
+        private void OCT_Window_FormClosing(object sender, FormClosingEventArgs e)
         {
-            File.WriteAllLines(csvPath, programs.Select(p => p.ToString()));
+            SafetyStop();
+            spTMCM3110.Close();
+        }
+
+        private void SafetyStop()
+        {
+            tmcm3110Controller.MotorStop(0);
+            tmcm3110Controller.MotorStop(1);
+            tmcm3110Controller.MotorStop(2);
         }
 
         // Event-Handler for key Pressed
         // -> for communication with autoclicker and commands
         private void OCT_Window_KeyDown(object sender, KeyEventArgs e)
         {
-            // Makro sendet Ctrl + E wenn beendet
+            // Ctrl + E zum Zurücksetzen des Messprogramms
             if (e.Control && e.KeyCode == Keys.E)
             {
+                tmcm3110Controller.MotorStop(2);
                 LogToConsole("Messung beendet, setze Anwendung zurück...");
                 System.Threading.Thread.Sleep(3000);
                 ResetMeasurement();
                 LogToConsole("Bereit für die nächste Messung");
             }
 
+            // Ctrl + D für den Wechsel in den Entwicklermodus
             if (e.Control && e.KeyCode == Keys.D)
             {
                 buttonDevMode.Visible = !buttonDevMode.Visible;
@@ -129,111 +109,61 @@ namespace OCT_GUI_Application
         }
 
         // Log to console with Timestamp
-        private void LogToConsole(string text)
+        public void LogToConsole(string text)
         {
-            textBoxConsole.AppendText($"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}");
+            if (textBoxConsole.InvokeRequired)
+            {
+                textBoxConsole.Invoke(new Action(() =>
+                    textBoxConsole.AppendText($"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}")));
+            }
+            else
+            {
+                textBoxConsole.AppendText($"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}");
+            }
         }
 
         // Reset GUI for next measurement
         private void ResetMeasurement()
         {
-            pictureBoxDisplay.Visible = false;
+            pictureBoxDisplay.Image = null;
             buttonMessStart.Enabled = true;
             buttonMessStart.BackColor = Color.GreenYellow;
             buttonMessStart.Text = "Messung Starten";
-            comboBoxGroesse.Enabled = true;
-            comboBoxGroesse.SelectedIndex = -1;
             comboBoxMessobjekt.Enabled = true;
             comboBoxMessobjekt.SelectedIndex = -1;
         }
 
-        /// <summary>
-        /// Action when Application is first started. Gets executed once
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OCT_Window_Load(object sender, EventArgs e)
-        {
-            // Timer initialisieren
-            mainTimer = new Timer();
-            mainTimer.Interval = 100; // 100 ms
-            mainTimer.Tick += MainTimer_Tick;
-            mainTimer.Start();
-        }
-
-        /// <summary>
-        /// Main Tick for continuous read/write actions and GUI update
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        // Main Tick for continuous read/write actions and GUI update
         private void MainTimer_Tick(object sender, EventArgs e)
         {
-            if (comboBoxGroesse.SelectedIndex >= 0 && comboBoxMessobjekt.SelectedIndex >= 0)
-            {
-                buttonMessStart.Visible = true;
-            }
-            else
-            {
-                buttonMessStart.Visible = false;
-            }
+            buttonMessStart.Visible = comboBoxMessobjekt.SelectedIndex >= 0;
 
             tmcm3110Controller.GetActualPosition_mm(0, out pos_ax0);
             tmcm3110Controller.GetActualPosition_mm(1, out pos_ax1);
             labelPosAx0.Text = pos_ax0.ToString();
             labelPosAx1.Text = pos_ax1.ToString();
-
-            // Makro-Pfad auswählen
-            if (comboBoxMessobjekt.SelectedIndex == 0)
-            {
-                macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Impeller_Turbo.mrf";
-                if (comboBoxGroesse.SelectedIndex == 0)
-                {
-                    selectedProgram = 0;
-                }
-                else if (comboBoxGroesse.SelectedIndex == 1)
-                {
-                    selectedProgram = 1;
-                }
-            }
-            else if (comboBoxMessobjekt.SelectedIndex == 1)
-            {
-                if (comboBoxGroesse.SelectedIndex == 0)
-                {
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_600_Turbo.mrf";
-                    selectedProgram = 2;
-                }
-                else if (comboBoxGroesse.SelectedIndex == 1)
-                {
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_2000_Turbo.mrf";
-                    selectedProgram = 3;
-                }
-            }
-            else
-            {
-                selectedProgram = 4;
-            }
-            labelSelProgDisp.Text = program[selectedProgram];
         }
 
+        // Aktion wenn Messung gestartet wird
         private void buttonMessStart_Click(object sender, EventArgs e)
         {
             // Button während Messung deaktivieren
             buttonMessStart.Enabled = false;
             buttonMessStart.BackColor = Color.Orange;
             buttonMessStart.Text = "Messung läuft…";
-            comboBoxGroesse.Enabled = false;
             comboBoxMessobjekt.Enabled = false;
             this.Refresh();
 
             LogToConsole("Starte Makro: " + macroFile);
 
-            tmcm3110Controller.MovePositionAbs(0, programs[selectedProgram].Axis0);
-            tmcm3110Controller.MovePositionAbs(1, programs[selectedProgram].Axis1);
+            tmcm3110Controller.MovePositionAbs(0, programFileManager.GetAxis0_Value(selectedProgram));
+            tmcm3110Controller.MovePositionAbs(1, programFileManager.GetAxis1_Value(selectedProgram));
+            tmcm3110Controller.RotateRight(2, 5);
 
             // Makro Rekorder starten
             try
             {
-                var process = System.Diagnostics.Process.Start(playerPath, "\"" + macroFile + "\"");
+                var process = System.Diagnostics.Process.Start(macroRecorderPath, "\"" + macroFile + "\"");
                 process.WaitForInputIdle();
 
                 IntPtr hWnd = IntPtr.Zero;
@@ -241,7 +171,7 @@ namespace OCT_GUI_Application
 
                 while (hWnd == IntPtr.Zero && retries-- > 0)
                 {
-                    System.Threading.Thread.Sleep(300); // kurz warten
+                    System.Threading.Thread.Sleep(300);
                     process.Refresh();
                     hWnd = process.MainWindowHandle;
                 }
@@ -263,18 +193,15 @@ namespace OCT_GUI_Application
             }
         }
 
-        private void OCT_Window_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            spTMCM3110.Close();
-        }
-
+        // Updaten der Vorschau und des aktuell ausgewählten Programms
         private void comboBoxMessobjekt_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxMessobjekt.SelectedIndex == 0)
+            // Vorschaubild auswählen
+            if (comboBoxMessobjekt.SelectedIndex == 0 || comboBoxMessobjekt.SelectedIndex == 1)
             {
                 pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\impeller.gif");
             }
-            else if (comboBoxMessobjekt.SelectedIndex == 1)
+            else if (comboBoxMessobjekt.SelectedIndex == 2 || comboBoxMessobjekt.SelectedIndex == 3)
             {
                 pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\pumphead.gif");
             }
@@ -282,27 +209,53 @@ namespace OCT_GUI_Application
             {
                 pictureBoxDisplay.Image = null;
             }
+
+            // Makro-Pfad auswählen
+            switch (comboBoxMessobjekt.SelectedIndex)
+            {
+                case 0:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Impeller_Turbo.mrf";
+                    selectedProgram = 0;
+                    break;
+                case 1:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Impeller_Turbo.mrf";
+                    selectedProgram = 1;
+                    break;
+                case 2:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_600_Turbo.mrf";
+                    selectedProgram = 2;
+                    break;
+                case 3:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_2000_Turbo.mrf";
+                    selectedProgram = 3;
+                    break;
+                default:
+                    selectedProgram = 4;
+                    break;
+            }
+            labelSelProgDisp.Text = programFileManager.GetProgramName(selectedProgram);
         }
 
+        // Manuelle Achsensteuerung im Entwicklermodus
         private void buttonTMCMsend_Click(object sender, EventArgs e)
         {
             byte TMCM_command = (byte)(comboBoxTMCMcmd.SelectedIndex);
-            byte TMCM_axis = (byte)(comboBoxTMCMaxs.SelectedIndex);
+            byte TMCM_axis = (byte)(comboBoxTMCMaxis.SelectedIndex);
 
             // Parse the value as signed int
-            if (!int.TryParse(textBoxTMCMval.Text, out int TMCM_value))
+            if (!double.TryParse(textBoxTMCMval.Text, out double TMCM_value))
             {
-                LogToConsole("Please enter a valid signed integer!");
+                LogToConsole("Please enter a valid signed double!");
                 return;
             }
 
             switch (TMCM_command)
             {
                 case 0:
-                    tmcm3110Controller.RotateRight(TMCM_axis, TMCM_value);
+                    tmcm3110Controller.RotateRight(TMCM_axis, (int)TMCM_value);
                     break;
                 case 1:
-                    tmcm3110Controller.RotateLeft(TMCM_axis, TMCM_value);
+                    tmcm3110Controller.RotateLeft(TMCM_axis, (int)TMCM_value);
                     break;
                 case 2:
                     tmcm3110Controller.MotorStop(TMCM_axis);
@@ -317,21 +270,22 @@ namespace OCT_GUI_Application
                     break;
             }
 
-            LogToConsole($"Sent Command={TMCM_command}, Axis={TMCM_axis}, Value={TMCM_value} (raw=0x{TMCM_value:X8})");
+            LogToConsole($"Sent Command={TMCM_command}, Axis={TMCM_axis}, Value={(int)TMCM_value} (raw=0x{(int)TMCM_value:X8})");
         }
 
+        // Aktuelles Programm speichern
         private void buttonSave_Click(object sender, EventArgs e)
         {
             if (selectedProgram < 4)
             {
-                var selectedProg = programs[selectedProgram];
+                var selectedProg = programFileManager.GetProgram(selectedProgram);
 
                 // Overwrite axis values with the *current live values*
                 selectedProg.Axis0 = pos_ax0;
                 selectedProg.Axis1 = pos_ax1;
 
                 // Save back to CSV
-                SavePrograms();
+                programFileManager.SavePrograms();
 
                 // UI feedback
                 buttonSave.BackColor = Color.Gray;
@@ -340,6 +294,7 @@ namespace OCT_GUI_Application
             }
         }
 
+        // Entwicklermodus freischalten
         private void buttonDevMode_Click(object sender, EventArgs e)
         {
             groupBoxAchsensteuerung.Visible = !groupBoxAchsensteuerung.Visible;
@@ -348,10 +303,13 @@ namespace OCT_GUI_Application
             if (groupBoxFile.Visible)
             {
                 buttonDevMode.BackColor = Color.Red;
+                comboBoxTMCMaxis.SelectedIndex = 0;
+                comboBoxTMCMcmd.SelectedIndex = 2;
             }
             else
             {
                 buttonDevMode.BackColor = SystemColors.ButtonFace;
+                SafetyStop();
             }
         }
     }
