@@ -7,10 +7,13 @@ namespace OCT_GUI_Application
 {
     class FileManager
     {
+        public int MAX_PROGRAM = 5;
+
         private string csvPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\programs.csv";
-        string[] program = { "600er_Impeller", "2000er_Impeller", "600er_Pumpenkopf", "2000er_Pumpenkopf", "" };
+        string[] program = { "600er_Impeller", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "" };
 
         List<OCTProgram> programs = new List<OCTProgram>();
+        OCTProgram program_settings = new OCTProgram("settings",0,0,0);
         
         private readonly Action<string> _logger;
 
@@ -34,10 +37,11 @@ namespace OCT_GUI_Application
                 // Default values if file missing
                 programs = new List<OCTProgram>()
                 {
-                    new OCTProgram(program[0], 0, 0),
-                    new OCTProgram(program[1], 0, 0),
-                    new OCTProgram(program[2], 0, 0),
-                    new OCTProgram(program[3], 0, 0)
+                    new OCTProgram(program[0], 0, 0, 0),
+                    new OCTProgram(program[1], 0, 0, 0),
+                    new OCTProgram(program[2], 0, 0, 0),
+                    new OCTProgram(program[3], 0, 0, 0),
+                    new OCTProgram(program[4], 0, 0, 0)
                 };
 
                 SavePrograms(); // create file with defaults
@@ -49,11 +53,12 @@ namespace OCT_GUI_Application
                 foreach (var line in File.ReadAllLines(csvPath))
                 {
                     var parts = line.Split(',');
-                    if (parts.Length == 3 &&
+                    if (parts.Length == program_settings.NR_PARAMETERS &&
                         double.TryParse(parts[1], out double ax0) &&
-                        double.TryParse(parts[2], out double ax1))
+                        double.TryParse(parts[2], out double ax1) && 
+                        int.TryParse(parts[3], out int spdRt))
                     {
-                        programs.Add(new OCTProgram(parts[0], ax0, ax1));
+                        programs.Add(new OCTProgram(parts[0], ax0, ax1, spdRt));
                     }
                 }
                 Log("Programs loaded from CSV.");
@@ -80,6 +85,11 @@ namespace OCT_GUI_Application
         public double GetAxis1_Value(int selectedProgram)
         {
             return programs[selectedProgram].Axis1;
+        }
+
+        public int GetSpeedRot(int selectedProgram)
+        {
+            return programs[selectedProgram].SpeedRot;
         }
 
         public OCTProgram GetProgram(int selectedProgram)

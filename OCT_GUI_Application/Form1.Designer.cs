@@ -47,14 +47,17 @@
             this.textBoxTMCMval = new System.Windows.Forms.TextBox();
             this.comboBoxTMCMcmd = new System.Windows.Forms.ComboBox();
             this.groupBoxFile = new System.Windows.Forms.GroupBox();
+            this.labelAxis1Disp = new System.Windows.Forms.Label();
+            this.labelAxis0Disp = new System.Windows.Forms.Label();
             this.buttonSave = new System.Windows.Forms.Button();
             this.labelPosAx1 = new System.Windows.Forms.Label();
             this.labelPosAx0 = new System.Windows.Forms.Label();
             this.labelActPos = new System.Windows.Forms.Label();
             this.labelSelProgDisp = new System.Windows.Forms.Label();
             this.labelSelProg = new System.Windows.Forms.Label();
-            this.labelAxis0Disp = new System.Windows.Forms.Label();
-            this.labelAxis1Disp = new System.Windows.Forms.Label();
+            this.labelSpeedRot = new System.Windows.Forms.Label();
+            this.textBoxSpeedRot = new System.Windows.Forms.TextBox();
+            this.comboBoxCOMPort = new System.Windows.Forms.ComboBox();
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
@@ -115,7 +118,8 @@
             this.comboBoxMessobjekt.FormattingEnabled = true;
             this.comboBoxMessobjekt.Items.AddRange(new object[] {
             "600er Impeller",
-            "2000er Impeller",
+            "2000er Impeller innen",
+            "2000er Impeller aussen",
             "600er Pumpenkopf",
             "2000er Pumpenkopf"});
             this.comboBoxMessobjekt.Location = new System.Drawing.Point(220, 42);
@@ -254,6 +258,8 @@
             // 
             // groupBoxFile
             // 
+            this.groupBoxFile.Controls.Add(this.textBoxSpeedRot);
+            this.groupBoxFile.Controls.Add(this.labelSpeedRot);
             this.groupBoxFile.Controls.Add(this.labelAxis1Disp);
             this.groupBoxFile.Controls.Add(this.labelAxis0Disp);
             this.groupBoxFile.Controls.Add(this.buttonSave);
@@ -268,6 +274,24 @@
             this.groupBoxFile.TabIndex = 5;
             this.groupBoxFile.TabStop = false;
             this.groupBoxFile.Text = "Programmverwaltung";
+            // 
+            // labelAxis1Disp
+            // 
+            this.labelAxis1Disp.AutoSize = true;
+            this.labelAxis1Disp.Location = new System.Drawing.Point(248, 87);
+            this.labelAxis1Disp.Name = "labelAxis1Disp";
+            this.labelAxis1Disp.Size = new System.Drawing.Size(29, 20);
+            this.labelAxis1Disp.TabIndex = 7;
+            this.labelAxis1Disp.Text = "A1";
+            // 
+            // labelAxis0Disp
+            // 
+            this.labelAxis0Disp.AutoSize = true;
+            this.labelAxis0Disp.Location = new System.Drawing.Point(248, 64);
+            this.labelAxis0Disp.Name = "labelAxis0Disp";
+            this.labelAxis0Disp.Size = new System.Drawing.Size(29, 20);
+            this.labelAxis0Disp.TabIndex = 6;
+            this.labelAxis0Disp.Text = "A0";
             // 
             // buttonSave
             // 
@@ -284,7 +308,7 @@
             // 
             this.labelPosAx1.AutoSize = true;
             this.labelPosAx1.ForeColor = System.Drawing.Color.Blue;
-            this.labelPosAx1.Location = new System.Drawing.Point(275, 87);
+            this.labelPosAx1.Location = new System.Drawing.Point(289, 87);
             this.labelPosAx1.Name = "labelPosAx1";
             this.labelPosAx1.Size = new System.Drawing.Size(21, 20);
             this.labelPosAx1.TabIndex = 4;
@@ -294,7 +318,7 @@
             // 
             this.labelPosAx0.AutoSize = true;
             this.labelPosAx0.ForeColor = System.Drawing.Color.Crimson;
-            this.labelPosAx0.Location = new System.Drawing.Point(275, 64);
+            this.labelPosAx0.Location = new System.Drawing.Point(289, 64);
             this.labelPosAx0.Name = "labelPosAx0";
             this.labelPosAx0.Size = new System.Drawing.Size(21, 20);
             this.labelPosAx0.TabIndex = 3;
@@ -313,7 +337,7 @@
             // 
             this.labelSelProgDisp.AutoSize = true;
             this.labelSelProgDisp.ForeColor = System.Drawing.Color.Yellow;
-            this.labelSelProgDisp.Location = new System.Drawing.Point(240, 32);
+            this.labelSelProgDisp.Location = new System.Drawing.Point(248, 32);
             this.labelSelProgDisp.Name = "labelSelProgDisp";
             this.labelSelProgDisp.Size = new System.Drawing.Size(21, 20);
             this.labelSelProgDisp.TabIndex = 1;
@@ -328,23 +352,36 @@
             this.labelSelProg.TabIndex = 0;
             this.labelSelProg.Text = "Ausgewähltes Programm:";
             // 
-            // labelAxis0Disp
+            // labelSpeedRot
             // 
-            this.labelAxis0Disp.AutoSize = true;
-            this.labelAxis0Disp.Location = new System.Drawing.Point(240, 64);
-            this.labelAxis0Disp.Name = "labelAxis0Disp";
-            this.labelAxis0Disp.Size = new System.Drawing.Size(29, 20);
-            this.labelAxis0Disp.TabIndex = 6;
-            this.labelAxis0Disp.Text = "A0";
+            this.labelSpeedRot.AutoSize = true;
+            this.labelSpeedRot.Location = new System.Drawing.Point(32, 116);
+            this.labelSpeedRot.Name = "labelSpeedRot";
+            this.labelSpeedRot.Size = new System.Drawing.Size(206, 20);
+            this.labelSpeedRot.TabIndex = 8;
+            this.labelSpeedRot.Text = "Drehgeschwindigkeit [1/min]";
             // 
-            // labelAxis1Disp
+            // textBoxSpeedRot
             // 
-            this.labelAxis1Disp.AutoSize = true;
-            this.labelAxis1Disp.Location = new System.Drawing.Point(240, 87);
-            this.labelAxis1Disp.Name = "labelAxis1Disp";
-            this.labelAxis1Disp.Size = new System.Drawing.Size(29, 20);
-            this.labelAxis1Disp.TabIndex = 7;
-            this.labelAxis1Disp.Text = "A1";
+            this.textBoxSpeedRot.Location = new System.Drawing.Point(252, 116);
+            this.textBoxSpeedRot.Name = "textBoxSpeedRot";
+            this.textBoxSpeedRot.Size = new System.Drawing.Size(100, 26);
+            this.textBoxSpeedRot.TabIndex = 9;
+            // 
+            // comboBoxCOMPort
+            // 
+            this.comboBoxCOMPort.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.comboBoxCOMPort.FormattingEnabled = true;
+            this.comboBoxCOMPort.Items.AddRange(new object[] {
+            "COM1",
+            "COM2",
+            "COM3",
+            "COM4",
+            "COM5"});
+            this.comboBoxCOMPort.Location = new System.Drawing.Point(333, 54);
+            this.comboBoxCOMPort.Name = "comboBoxCOMPort";
+            this.comboBoxCOMPort.Size = new System.Drawing.Size(82, 28);
+            this.comboBoxCOMPort.TabIndex = 7;
             // 
             // OCT_Window
             // 
@@ -352,6 +389,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.ClientSize = new System.Drawing.Size(1258, 664);
+            this.Controls.Add(this.comboBoxCOMPort);
             this.Controls.Add(this.buttonDevMode);
             this.Controls.Add(this.groupBoxFile);
             this.Controls.Add(this.groupBoxAchsensteuerung);
@@ -404,6 +442,9 @@
         private System.Windows.Forms.Button buttonDevMode;
         private System.Windows.Forms.Label labelAxis0Disp;
         private System.Windows.Forms.Label labelAxis1Disp;
+        private System.Windows.Forms.Label labelSpeedRot;
+        private System.Windows.Forms.TextBox textBoxSpeedRot;
+        private System.Windows.Forms.ComboBox comboBoxCOMPort;
     }
 }
 

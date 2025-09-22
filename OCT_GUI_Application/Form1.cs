@@ -12,10 +12,11 @@ namespace OCT_GUI_Application
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        SerialPort spTMCM3110 = new SerialPort("COM4", 115200, Parity.None, 8, StopBits.One);
+        SerialPort spTMCM3110;
 
         double pos_ax0;
         double pos_ax1;
+        int speed_rot;
         int selectedProgram;
 
         string macroRecorderPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\00_MacroRecorder\MacroRecorder.exe";
@@ -29,6 +30,10 @@ namespace OCT_GUI_Application
         public OCT_Window()
         {
             InitializeComponent();
+
+            comboBoxCOMPort.SelectedIndex = 3;
+            string portName = comboBoxCOMPort.SelectedItem.ToString();
+            spTMCM3110 = new SerialPort(portName, 115200, Parity.None, 8, StopBits.One); //COM5 OCT PC, COM4 Benjamins PC
 
             tmcm3110Controller = new TMCM3110Controller(spTMCM3110, LogToConsole);
             programFileManager = new FileManager(LogToConsole);
@@ -158,7 +163,7 @@ namespace OCT_GUI_Application
 
             tmcm3110Controller.MovePositionAbs(0, programFileManager.GetAxis0_Value(selectedProgram));
             tmcm3110Controller.MovePositionAbs(1, programFileManager.GetAxis1_Value(selectedProgram));
-            tmcm3110Controller.RotateRight(2, 5);
+            tmcm3110Controller.RotateRight(2, programFileManager.GetSpeedRot(selectedProgram));
 
             // Makro Rekorder starten
             try
@@ -197,13 +202,13 @@ namespace OCT_GUI_Application
         private void comboBoxMessobjekt_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Vorschaubild auswählen
-            if (comboBoxMessobjekt.SelectedIndex == 0 || comboBoxMessobjekt.SelectedIndex == 1)
+            if (comboBoxMessobjekt.SelectedIndex == 0 || comboBoxMessobjekt.SelectedIndex == 1 || comboBoxMessobjekt.SelectedIndex == 2)
             {
-                pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\impeller.gif");
+                pictureBoxDisplay.Image = Image.FromFile(@"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\Grafiken\impeller.gif");
             }
-            else if (comboBoxMessobjekt.SelectedIndex == 2 || comboBoxMessobjekt.SelectedIndex == 3)
+            else if (comboBoxMessobjekt.SelectedIndex == 3 || comboBoxMessobjekt.SelectedIndex == 4)
             {
-                pictureBoxDisplay.Image = Image.FromFile(@"C:\Users\benjamin.bechtiger\source\repos\OCT_GUI_Application\OCT_GUI_Application\Grafiken\pumphead.gif");
+                pictureBoxDisplay.Image = Image.FromFile(@"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\Grafiken\pumphead.gif");
             }
             else if (comboBoxMessobjekt.SelectedIndex == -1)
             {
@@ -222,15 +227,19 @@ namespace OCT_GUI_Application
                     selectedProgram = 1;
                     break;
                 case 2:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_600_Turbo.mrf";
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Impeller_Turbo.mrf";
                     selectedProgram = 2;
                     break;
                 case 3:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_2000_Turbo.mrf";
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_600_Turbo.mrf";
                     selectedProgram = 3;
                     break;
-                default:
+                case 4:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_2000_Turbo.mrf";
                     selectedProgram = 4;
+                    break;
+                default:
+                    selectedProgram = programFileManager.MAX_PROGRAM;
                     break;
             }
             labelSelProgDisp.Text = programFileManager.GetProgramName(selectedProgram);
@@ -242,7 +251,7 @@ namespace OCT_GUI_Application
             byte TMCM_command = (byte)(comboBoxTMCMcmd.SelectedIndex);
             byte TMCM_axis = (byte)(comboBoxTMCMaxis.SelectedIndex);
 
-            // Parse the value as signed int
+            // Parse the value as signed double
             if (!double.TryParse(textBoxTMCMval.Text, out double TMCM_value))
             {
                 LogToConsole("Please enter a valid signed double!");
@@ -276,21 +285,33 @@ namespace OCT_GUI_Application
         // Aktuelles Programm speichern
         private void buttonSave_Click(object sender, EventArgs e)
         {
-            if (selectedProgram < 4)
+            // Parse the value as signed double
+            if (!int.TryParse(textBoxSpeedRot.Text, out speed_rot))
+            {
+                LogToConsole("Please enter a valid integer");
+                return;
+            }
+
+            if (selectedProgram >= 0 && selectedProgram < programFileManager.MAX_PROGRAM)
             {
                 var selectedProg = programFileManager.GetProgram(selectedProgram);
 
                 // Overwrite axis values with the *current live values*
                 selectedProg.Axis0 = pos_ax0;
                 selectedProg.Axis1 = pos_ax1;
+                selectedProg.SpeedRot = speed_rot;
 
                 // Save back to CSV
                 programFileManager.SavePrograms();
 
                 // UI feedback
                 buttonSave.BackColor = Color.Gray;
-                LogToConsole($"CSV gespeichert! {selectedProg.Name} -> Ax0={selectedProg.Axis0}, Ax1={selectedProg.Axis1}");
+                LogToConsole($"CSV gespeichert! {selectedProg.Name} -> Ax0={selectedProg.Axis0}, Ax1={selectedProg.Axis1}, speed={selectedProg.SpeedRot}");
                 buttonSave.BackColor = SystemColors.ButtonFace;
+            }
+            else
+            {
+                LogToConsole("Please select a program");
             }
         }
 

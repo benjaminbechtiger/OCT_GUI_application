@@ -5,10 +5,12 @@ namespace OCT_GUI_Application
 {
     class TMCM3110Controller
     {
-        private readonly SerialPort _serial;
+        private SerialPort _serial;
         private readonly byte _slaveAddress;
         private readonly Action<string> _logger;
-        private bool serial_was_open = false;
+        private bool _errorLogged = false;
+        private int _failedAttempts = 0;
+        private const int MaxFailedAttempts = 10;
 
         // Konstruktor
         public TMCM3110Controller(SerialPort serial, Action<string> logger = null, byte slaveAddress = 2)
@@ -35,19 +37,23 @@ namespace OCT_GUI_Application
             try
             {
                 if (_serial == null)
-                    Log("Serial port object is null.");
+                {
+                    if (!_errorLogged)
+                    {
+                        Log("Serial port object is null.");
+                        _errorLogged = true;
+                    }
+                    return false;
+                }
 
                 if (!_serial.IsOpen)
                 {
-                    try
+                    if (!_errorLogged)
                     {
-                        _serial.Open();
+                        Log("Serial port is closed. Please reopen manually.");
+                        _errorLogged = true;
                     }
-                    catch (Exception ex)
-                    {
-                        if (serial_was_open) { Log($"[WARN] Unable to open serial port: {ex.Message}"); }
-                        serial_was_open = false;
-                    }
+                    return false;
                 }
 
                 // Frame bauen
@@ -100,19 +106,68 @@ namespace OCT_GUI_Application
                                 (response[6] << 8) |
                                 response[7];
 
-                if (!serial_was_open) { Log("Serial Port reconnected"); }
-                serial_was_open = true;
+                // success → reset failures
+                _failedAttempts = 0;
+
+                // if we had logged an error earlier → clear it and log recovery
+                if (_errorLogged)
+                {
+                    Log("Serial communication recovered.");
+                    _errorLogged = false;
+                }
 
                 return true;
             }
             catch (Exception ex)
             {
-                if (serial_was_open) { Log($"[ERROR] Serial communication failed: {ex.Message}"); }
+                _failedAttempts++;
 
-                try { if (_serial.IsOpen) _serial.Close(); } catch { }
+                if (!_errorLogged)
+                {
+                    Log($"[ERROR] Serial communication failed: {ex.Message}");
+                    _errorLogged = true;
+                }
+
+                if (_failedAttempts >= MaxFailedAttempts)
+                {
+                    try
+                    {
+                        if (_serial.IsOpen) _serial.Close();
+                    }
+                    catch { }
+                    if (_errorLogged)
+                        Log($"[ERROR] Max connection attempts reached. COM port closed.");
+                }
             }
 
             return false;
+        }
+
+        public void ReopenSerialPort(string portName, int baudRate = 115200, Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One)
+        {
+            try
+            {
+                // close old port if still around
+                if (_serial != null)
+                {
+                    if (_serial.IsOpen)
+                        _serial.Close();
+                    _serial.Dispose();
+                }
+
+                // create new SerialPort
+                _serial = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
+                _serial.Open();
+
+                _failedAttempts = 0;
+                _errorLogged = false;
+
+                Log($"[INFO] Serial port {portName} reopened successfully.");
+            }
+            catch (Exception ex)
+            {
+                Log($"[ERROR] Could not reopen serial port {portName}: {ex.Message}");
+            }
         }
 
         // Abstrahierte TMCL Write Funktion
