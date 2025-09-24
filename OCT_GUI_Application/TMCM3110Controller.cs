@@ -5,19 +5,17 @@ namespace OCT_GUI_Application
 {
     class TMCM3110Controller
     {
-        private SerialPort _serial;
+        private SerialPortHandler spTMCM3110_Handler;
         private readonly byte _slaveAddress;
         private readonly Action<string> _logger;
-        private bool _errorLogged = false;
-        private int _failedAttempts = 0;
-        private const int MaxFailedAttempts = 10;
 
         // Konstruktor
-        public TMCM3110Controller(SerialPort serial, Action<string> logger = null, byte slaveAddress = 2)
+        public TMCM3110Controller(Action<string> logger, byte slaveAddress = 2)
         {
-            _serial = serial ?? throw new ArgumentNullException(nameof(serial));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _slaveAddress = slaveAddress;
+            spTMCM3110_Handler = new SerialPortHandler(logger);
+            spTMCM3110_Handler.OpenSerial();
         }
 
         // Datenlogger
@@ -30,29 +28,14 @@ namespace OCT_GUI_Application
         /// Sendet einen TMCL Befehl an den TMCM-3110 Controller.
         /// Stellt sicher, dass die serielle Verbindung offen ist und versucht ggf. neu zu verbinden.
         /// </summary>
-        private bool SendTMCLCommand(byte command, byte type, byte axis, uint value, out int replyValue, int timeoutMs = 50)
+        private bool SendTMCLCommand(byte command, byte type, byte axis, uint value, out int replyValue)
         {
             replyValue = 0;
 
             try
             {
-                if (_serial == null)
+                if (!spTMCM3110_Handler.CheckPort())
                 {
-                    if (!_errorLogged)
-                    {
-                        Log("Serial port object is null.");
-                        _errorLogged = true;
-                    }
-                    return false;
-                }
-
-                if (!_serial.IsOpen)
-                {
-                    if (!_errorLogged)
-                    {
-                        Log("Serial port is closed. Please reopen manually.");
-                        _errorLogged = true;
-                    }
                     return false;
                 }
 
@@ -74,22 +57,14 @@ namespace OCT_GUI_Application
                 frame[8] = checksum;
 
                 // Senden
-                _serial.Write(frame, 0, frame.Length);
-                _serial.BaseStream.Flush();
+                spTMCM3110_Handler.SendFrame(frame, frame.Length);
 
                 // Antwort abwarten
-                DateTime start = DateTime.Now;
-                while (_serial.BytesToRead < 9)
-                {
-                    if ((DateTime.Now - start).TotalMilliseconds > timeoutMs)
-                        return false;
-                    System.Threading.Thread.Sleep(1);
-                }
-
-                // Antwort lesen
                 byte[] response = new byte[9];
-                int read = _serial.Read(response, 0, 9);
-                if (read < 9) return false;
+                if (!spTMCM3110_Handler.ReadResponse(9, out response))
+                {
+                    return false;
+                }
 
                 // Prüfsumme prüfen
                 byte sum = 0;
@@ -106,68 +81,22 @@ namespace OCT_GUI_Application
                                 (response[6] << 8) |
                                 response[7];
 
-                // success → reset failures
-                _failedAttempts = 0;
-
-                // if we had logged an error earlier → clear it and log recovery
-                if (_errorLogged)
-                {
-                    Log("Serial communication recovered.");
-                    _errorLogged = false;
-                }
+                spTMCM3110_Handler.LogSuccess();
 
                 return true;
             }
             catch (Exception ex)
             {
-                _failedAttempts++;
-
-                if (!_errorLogged)
-                {
-                    Log($"[ERROR] Serial communication failed: {ex.Message}");
-                    _errorLogged = true;
-                }
-
-                if (_failedAttempts >= MaxFailedAttempts)
-                {
-                    try
-                    {
-                        if (_serial.IsOpen) _serial.Close();
-                    }
-                    catch { }
-                    if (_errorLogged)
-                        Log($"[ERROR] Max connection attempts reached. COM port closed.");
-                }
+                spTMCM3110_Handler.ReopenPortTimeout(ex);
             }
 
             return false;
         }
 
-        public void ReopenSerialPort(string portName, int baudRate = 115200, Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One)
+        // Seriellen Port schliessen und Verbindung wiederherstellen
+        public bool ReopenSerialPort(string portName, int baudRate = 115200)
         {
-            try
-            {
-                // close old port if still around
-                if (_serial != null)
-                {
-                    if (_serial.IsOpen)
-                        _serial.Close();
-                    _serial.Dispose();
-                }
-
-                // create new SerialPort
-                _serial = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
-                _serial.Open();
-
-                _failedAttempts = 0;
-                _errorLogged = false;
-
-                Log($"[INFO] Serial port {portName} reopened successfully.");
-            }
-            catch (Exception ex)
-            {
-                Log($"[ERROR] Could not reopen serial port {portName}: {ex.Message}");
-            }
+            return spTMCM3110_Handler.ReopenPort(portName, baudRate);
         }
 
         // Abstrahierte TMCL Write Funktion

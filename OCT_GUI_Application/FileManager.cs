@@ -10,7 +10,7 @@ namespace OCT_GUI_Application
         public int MAX_PROGRAM = 5;
 
         private string csvPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\programs.csv";
-        string[] program = { "600er_Impeller", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "" };
+        string[] program = { "Lunker_Boden", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "" };
 
         List<OCTProgram> programs = new List<OCTProgram>();
         OCTProgram program_settings = new OCTProgram("settings",0,0,0);
@@ -18,7 +18,7 @@ namespace OCT_GUI_Application
         private readonly Action<string> _logger;
 
         // Konstruktor
-        public FileManager(Action<string> logger = null)
+        public FileManager(Action<string> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

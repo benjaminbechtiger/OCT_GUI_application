@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OCT_Window));
             this.groupBoxProgrammwahl = new System.Windows.Forms.GroupBox();
             this.textBoxConsole = new System.Windows.Forms.TextBox();
@@ -47,6 +48,10 @@
             this.textBoxTMCMval = new System.Windows.Forms.TextBox();
             this.comboBoxTMCMcmd = new System.Windows.Forms.ComboBox();
             this.groupBoxFile = new System.Windows.Forms.GroupBox();
+            this.labelCOMport = new System.Windows.Forms.Label();
+            this.comboBoxCOMPort = new System.Windows.Forms.ComboBox();
+            this.textBoxSpeedRot = new System.Windows.Forms.TextBox();
+            this.labelSpeedRot = new System.Windows.Forms.Label();
             this.labelAxis1Disp = new System.Windows.Forms.Label();
             this.labelAxis0Disp = new System.Windows.Forms.Label();
             this.buttonSave = new System.Windows.Forms.Button();
@@ -55,9 +60,7 @@
             this.labelActPos = new System.Windows.Forms.Label();
             this.labelSelProgDisp = new System.Windows.Forms.Label();
             this.labelSelProg = new System.Windows.Forms.Label();
-            this.labelSpeedRot = new System.Windows.Forms.Label();
-            this.textBoxSpeedRot = new System.Windows.Forms.TextBox();
-            this.comboBoxCOMPort = new System.Windows.Forms.ComboBox();
+            this.toolTipCommands = new System.Windows.Forms.ToolTip(this.components);
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
@@ -117,7 +120,7 @@
             this.comboBoxMessobjekt.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.comboBoxMessobjekt.FormattingEnabled = true;
             this.comboBoxMessobjekt.Items.AddRange(new object[] {
-            "600er Impeller",
+            "Lunker Boden",
             "2000er Impeller innen",
             "2000er Impeller aussen",
             "600er Pumpenkopf",
@@ -258,6 +261,8 @@
             // 
             // groupBoxFile
             // 
+            this.groupBoxFile.Controls.Add(this.labelCOMport);
+            this.groupBoxFile.Controls.Add(this.comboBoxCOMPort);
             this.groupBoxFile.Controls.Add(this.textBoxSpeedRot);
             this.groupBoxFile.Controls.Add(this.labelSpeedRot);
             this.groupBoxFile.Controls.Add(this.labelAxis1Disp);
@@ -274,6 +279,41 @@
             this.groupBoxFile.TabIndex = 5;
             this.groupBoxFile.TabStop = false;
             this.groupBoxFile.Text = "Programmverwaltung";
+            // 
+            // labelCOMport
+            // 
+            this.labelCOMport.AutoSize = true;
+            this.labelCOMport.Location = new System.Drawing.Point(490, 32);
+            this.labelCOMport.Name = "labelCOMport";
+            this.labelCOMport.Size = new System.Drawing.Size(86, 20);
+            this.labelCOMport.TabIndex = 10;
+            this.labelCOMport.Text = "Serial Port:";
+            // 
+            // comboBoxCOMPort
+            // 
+            this.comboBoxCOMPort.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.comboBoxCOMPort.FormattingEnabled = true;
+            this.comboBoxCOMPort.Location = new System.Drawing.Point(592, 29);
+            this.comboBoxCOMPort.Name = "comboBoxCOMPort";
+            this.comboBoxCOMPort.Size = new System.Drawing.Size(82, 28);
+            this.comboBoxCOMPort.TabIndex = 7;
+            this.comboBoxCOMPort.SelectedIndexChanged += new System.EventHandler(this.comboBoxCOMPort_SelectedIndexChanged);
+            // 
+            // textBoxSpeedRot
+            // 
+            this.textBoxSpeedRot.Location = new System.Drawing.Point(252, 116);
+            this.textBoxSpeedRot.Name = "textBoxSpeedRot";
+            this.textBoxSpeedRot.Size = new System.Drawing.Size(100, 26);
+            this.textBoxSpeedRot.TabIndex = 9;
+            // 
+            // labelSpeedRot
+            // 
+            this.labelSpeedRot.AutoSize = true;
+            this.labelSpeedRot.Location = new System.Drawing.Point(32, 116);
+            this.labelSpeedRot.Name = "labelSpeedRot";
+            this.labelSpeedRot.Size = new System.Drawing.Size(206, 20);
+            this.labelSpeedRot.TabIndex = 8;
+            this.labelSpeedRot.Text = "Drehgeschwindigkeit [1/min]";
             // 
             // labelAxis1Disp
             // 
@@ -352,44 +392,12 @@
             this.labelSelProg.TabIndex = 0;
             this.labelSelProg.Text = "Ausgewähltes Programm:";
             // 
-            // labelSpeedRot
-            // 
-            this.labelSpeedRot.AutoSize = true;
-            this.labelSpeedRot.Location = new System.Drawing.Point(32, 116);
-            this.labelSpeedRot.Name = "labelSpeedRot";
-            this.labelSpeedRot.Size = new System.Drawing.Size(206, 20);
-            this.labelSpeedRot.TabIndex = 8;
-            this.labelSpeedRot.Text = "Drehgeschwindigkeit [1/min]";
-            // 
-            // textBoxSpeedRot
-            // 
-            this.textBoxSpeedRot.Location = new System.Drawing.Point(252, 116);
-            this.textBoxSpeedRot.Name = "textBoxSpeedRot";
-            this.textBoxSpeedRot.Size = new System.Drawing.Size(100, 26);
-            this.textBoxSpeedRot.TabIndex = 9;
-            // 
-            // comboBoxCOMPort
-            // 
-            this.comboBoxCOMPort.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.comboBoxCOMPort.FormattingEnabled = true;
-            this.comboBoxCOMPort.Items.AddRange(new object[] {
-            "COM1",
-            "COM2",
-            "COM3",
-            "COM4",
-            "COM5"});
-            this.comboBoxCOMPort.Location = new System.Drawing.Point(333, 54);
-            this.comboBoxCOMPort.Name = "comboBoxCOMPort";
-            this.comboBoxCOMPort.Size = new System.Drawing.Size(82, 28);
-            this.comboBoxCOMPort.TabIndex = 7;
-            // 
             // OCT_Window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.AppWorkspace;
             this.ClientSize = new System.Drawing.Size(1258, 664);
-            this.Controls.Add(this.comboBoxCOMPort);
             this.Controls.Add(this.buttonDevMode);
             this.Controls.Add(this.groupBoxFile);
             this.Controls.Add(this.groupBoxAchsensteuerung);
@@ -445,6 +453,8 @@
         private System.Windows.Forms.Label labelSpeedRot;
         private System.Windows.Forms.TextBox textBoxSpeedRot;
         private System.Windows.Forms.ComboBox comboBoxCOMPort;
+        private System.Windows.Forms.Label labelCOMport;
+        private System.Windows.Forms.ToolTip toolTipCommands;
     }
 }
 
