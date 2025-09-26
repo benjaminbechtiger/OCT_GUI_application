@@ -124,7 +124,9 @@
             "2000er Impeller innen",
             "2000er Impeller aussen",
             "600er Pumpenkopf",
-            "2000er Pumpenkopf"});
+            "2000er Pumpenkopf",
+            "Wandstärke 4k Impeller",
+            "Wandstärke 4k ZB"});
             this.comboBoxMessobjekt.Location = new System.Drawing.Point(220, 42);
             this.comboBoxMessobjekt.Name = "comboBoxMessobjekt";
             this.comboBoxMessobjekt.Size = new System.Drawing.Size(298, 28);

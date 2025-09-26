@@ -7,10 +7,8 @@ namespace OCT_GUI_Application
 {
     class FileManager
     {
-        public int MAX_PROGRAM = 5;
-
         private string csvPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\programs.csv";
-        string[] program = { "Lunker_Boden", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "" };
+        string[] program = { "Lunker_Boden", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "Wandstärke_4k_Impeller", "Wandstärke_4k_ZB", ""};
 
         List<OCTProgram> programs = new List<OCTProgram>();
         OCTProgram program_settings = new OCTProgram("settings",0,0,0);
@@ -35,14 +33,12 @@ namespace OCT_GUI_Application
             if (!File.Exists(csvPath))
             {
                 // Default values if file missing
-                programs = new List<OCTProgram>()
+                programs = new List<OCTProgram>();
+
+                for (int i = 0; i < GetNumPrograms(); i++)
                 {
-                    new OCTProgram(program[0], 0, 0, 0),
-                    new OCTProgram(program[1], 0, 0, 0),
-                    new OCTProgram(program[2], 0, 0, 0),
-                    new OCTProgram(program[3], 0, 0, 0),
-                    new OCTProgram(program[4], 0, 0, 0)
-                };
+                    programs.Add(new OCTProgram(program[i], 0, 0, 0));
+                }
 
                 SavePrograms(); // create file with defaults
                 Log("CSV file not found. Created with default values.");
@@ -72,6 +68,12 @@ namespace OCT_GUI_Application
         }
 
         // Getter Funktionen
+
+        public int GetNumPrograms()
+        {
+            return program.Length - 1;
+        }
+
         public string GetProgramName(int selectedProgram)
         {
             return program[selectedProgram];

@@ -288,8 +288,16 @@ namespace OCT_GUI_Application
                     macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_2000_auto.mrf";
                     selectedProgram = 4;
                     break;
+                case 5:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\Wandstärke_auto.mrf";
+                    selectedProgram = 5;
+                    break;
+                case 6:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\Wandstärke_auto.mrf";
+                    selectedProgram = 6;
+                    break;
                 default:
-                    selectedProgram = programFileManager.MAX_PROGRAM;
+                    selectedProgram = programFileManager.GetNumPrograms();
                     break;
             }
             labelSelProgDisp.Text = programFileManager.GetProgramName(selectedProgram);
@@ -360,7 +368,7 @@ namespace OCT_GUI_Application
                 return;
             }
 
-            if (selectedProgram >= 0 && selectedProgram < programFileManager.MAX_PROGRAM)
+            if (selectedProgram >= 0 && selectedProgram < programFileManager.GetNumPrograms())
             {
                 var selectedProg = programFileManager.GetProgram(selectedProgram);
 
