@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 using OpenCvSharp;
 using System.IO;
@@ -7,7 +8,7 @@ namespace OCT_GUI_Application
 {
     class ImageManager
     {
-        private readonly Action<string> _logger;
+        private readonly Action<string, Color?> _logger;
 
         private readonly string SourceFolder = @"C:\Users\HE-Admin\Pictures\Screenshots";
         private readonly string OutputFolder = @"C:\Levitronix\AnalyseBilder";
@@ -16,7 +17,7 @@ namespace OCT_GUI_Application
         public double Contrast { get; set; } = 1.3;
         public double Brightness { get; set; } = 5.0;
 
-        public ImageManager(Action<string> logger)
+        public ImageManager(Action<string, Color?> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -25,9 +26,10 @@ namespace OCT_GUI_Application
         }
 
         // Datenlogger
-        private void Log(string message)
+        private void Log(string message, Color? color = null)
         {
-            _logger?.Invoke(message);
+            Color c = color ?? Color.White;
+            _logger?.Invoke(message, c);
         }
 
         public void ProcessImages()

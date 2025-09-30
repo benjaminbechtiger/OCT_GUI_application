@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO.Ports;
+using System.Drawing;
 
 namespace OCT_GUI_Application
 {
@@ -7,10 +7,10 @@ namespace OCT_GUI_Application
     {
         private SerialPortHandler spTMCM3110_Handler;
         private readonly byte _slaveAddress;
-        private readonly Action<string> _logger;
+        private readonly Action<string, Color?> _logger;
 
         // Konstruktor
-        public TMCM3110Controller(Action<string> logger, byte slaveAddress = 2)
+        public TMCM3110Controller(Action<string, Color?> logger, byte slaveAddress = 2)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _slaveAddress = slaveAddress;
@@ -19,9 +19,10 @@ namespace OCT_GUI_Application
         }
 
         // Datenlogger
-        private void Log(string message)
+        private void Log(string message, Color? color = null)
         {
-            _logger?.Invoke(message);
+            Color c = color ?? Color.White;
+            _logger?.Invoke(message, color);
         }
 
         /// <summary>

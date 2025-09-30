@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO.Ports;
 
 namespace OCT_GUI_Application
@@ -6,21 +7,22 @@ namespace OCT_GUI_Application
     class SerialPortHandler
     {
         private SerialPort serialPort;
-        private readonly Action<string> _logger;
+        private readonly Action<string, Color?> _logger;
         private bool _errorLogged = false;
         private int _failedAttempts = 0;
         private int MaxFailedAttempts;
 
-        public SerialPortHandler(Action<string> logger)
+        public SerialPortHandler(Action<string, Color?> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             serialPort = new SerialPort("COM4", 115200, Parity.None, 8, StopBits.One); //Default Serial Port (Benjamin PC)
         }
 
         // Datenlogger
-        private void Log(string message)
+        private void Log(string message, Color? color = null)
         {
-            _logger?.Invoke(message);
+            Color c = color ?? Color.White;
+            _logger?.Invoke(message, color);
         }
 
         public void OpenSerial()

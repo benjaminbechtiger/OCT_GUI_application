@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -8,23 +9,24 @@ namespace OCT_GUI_Application
     class FileManager
     {
         private string csvPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\programs.csv";
-        string[] program = { "Lunker_Boden", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "Wandstärke_4k_Impeller", "Wandstärke_4k_ZB", ""};
+        string[] program = { "Lunker_Boden", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "Wandstärke_4k_Impeller", "Wandstärke_4k_ZB", "LPI_30", "Varia_30_Bilder", ""};
 
         List<OCTProgram> programs = new List<OCTProgram>();
         OCTProgram program_settings = new OCTProgram("settings",0,0,0);
         
-        private readonly Action<string> _logger;
+        private readonly Action<string, Color?> _logger;
 
         // Konstruktor
-        public FileManager(Action<string> logger)
+        public FileManager(Action<string, Color?> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // Datenlogger
-        private void Log(string message)
+        private void Log(string message, Color? color = null)
         {
-            _logger?.Invoke(message);
+            Color c = color ?? Color.White;
+            _logger?.Invoke(message, color);
         }
 
         // Programme aus .csv File laden

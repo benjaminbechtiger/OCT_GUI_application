@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Timer = System.Windows.Forms.Timer;
 
 namespace OCT_GUI_Application
 {
@@ -13,6 +15,8 @@ namespace OCT_GUI_Application
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
         private Process macroProcess;
+        private static int MAX_POS_TIME = 20000;    //Maximale Zeit zum Erreichen der Position
+        private static double POS_TOL  = 0.1;       //Toleranz für die Positionierung in mm
 
         double pos_ax0;
         double pos_ax1;
@@ -120,16 +124,32 @@ namespace OCT_GUI_Application
         }
 
         // Log to console with Timestamp
-        public void LogToConsole(string text)
+        public void LogToConsole(string text, Color? color = null)
         {
+            Color c = color ?? Color.White;
+
             if (textBoxConsole.InvokeRequired)
             {
                 textBoxConsole.Invoke(new Action(() =>
-                    textBoxConsole.AppendText($"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}")));
+                {
+                    int start = textBoxConsole.TextLength;
+                    string message = $"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}";
+                    textBoxConsole.AppendText(message);
+                    textBoxConsole.Select(start, message.Length);
+                    textBoxConsole.SelectionColor = c;
+                    textBoxConsole.SelectionLength = 0;
+                    textBoxConsole.ScrollToCaret();
+                }));
             }
             else
             {
-                textBoxConsole.AppendText($"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}");
+                int start = textBoxConsole.TextLength;
+                string message = $"{DateTime.Now:HH:mm:ss}: {text}{Environment.NewLine}";
+                textBoxConsole.AppendText(message);
+                textBoxConsole.Select(start, message.Length);
+                textBoxConsole.SelectionColor = c;
+                textBoxConsole.SelectionLength = 0;
+                textBoxConsole.ScrollToCaret();
             }
         }
 
@@ -179,7 +199,7 @@ namespace OCT_GUI_Application
         }
 
         // Aktion wenn Messung gestartet wird
-        private void buttonMessStart_Click(object sender, EventArgs e)
+        private async void buttonMessStart_Click(object sender, EventArgs e)
         {
             buttonMessStart.Enabled = false;
             buttonMessStart.BackColor = Color.Orange;
@@ -189,13 +209,39 @@ namespace OCT_GUI_Application
 
             LogToConsole("Starte Makro: " + macroFile);
 
-            tmcm3110Controller.MovePositionAbs(0, programFileManager.GetAxis0_Value(selectedProgram));
-            tmcm3110Controller.MovePositionAbs(1, programFileManager.GetAxis1_Value(selectedProgram));
-            tmcm3110Controller.RotateRight(2, programFileManager.GetSpeedRot(selectedProgram));
+            double targetPos0 = programFileManager.GetAxis0_Value(selectedProgram);
+            double targetPos1 = programFileManager.GetAxis1_Value(selectedProgram);
+
+            try
+            {
+                tmcm3110Controller.MovePositionAbs(0, targetPos0);
+                tmcm3110Controller.MovePositionAbs(1, targetPos1);
+            }
+            catch (Exception ex)
+            {
+                LogToConsole("TMCM Controller Fehler" + ex.Message);
+            }
+
+            var sw = Stopwatch.StartNew();
+            while (Math.Abs(pos_ax0 - targetPos0) > POS_TOL || Math.Abs(pos_ax1 - targetPos1) > POS_TOL)
+            {
+                await Task.Delay(1);
+
+                if (sw.ElapsedMilliseconds > MAX_POS_TIME)
+                {
+                    LogToConsole("[WARNING] Zielposition nicht erreicht", Color.Red);
+                    SafetyStop();
+                    ResetMeasurement();
+                    return;
+                }
+            }
+
+            MessageBox.Show("Messobjekt positionieren und bestätigen", "Grüezi", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             // Makro Rekorder starten
             try
             {
+                tmcm3110Controller.RotateRight(2, programFileManager.GetSpeedRot(selectedProgram));
                 macroProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
@@ -231,7 +277,7 @@ namespace OCT_GUI_Application
             }
             catch (Exception ex)
             {
-                LogToConsole("Fehler beim Starten oder Steuern:\n" + ex.Message);
+                LogToConsole("Fehler beim Starten oder Steuern:\n" + ex.Message, Color.Red);
             }
         }
 
@@ -258,7 +304,7 @@ namespace OCT_GUI_Application
             }
             catch (Exception ex)
             {
-                LogToConsole("Fehler beim Beenden des Makro-Prozesses:\n" + ex.Message);
+                LogToConsole("Fehler beim Beenden des Makro-Prozesses:\n" + ex.Message, Color.Red);
             }
         }
 
@@ -266,35 +312,35 @@ namespace OCT_GUI_Application
         private void comboBoxMessobjekt_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Makro-Pfad festlegen
-            switch (comboBoxMessobjekt.SelectedIndex)
+            selectedProgram = comboBoxMessobjekt.SelectedIndex;
+            switch (selectedProgram)
             {
                 case 0:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Einschalten_auto.mrf";
-                    selectedProgram = 0;
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Einschalten_auto.mrf";     //Lunker Boden
                     break;
                 case 1:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Impeller_auto.mrf";
-                    selectedProgram = 1;
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_60_Bilder.mrf";            //2000er Impeller innen
                     break;
                 case 2:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_Impeller_auto.mrf";
-                    selectedProgram = 2;
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_60_Bilder.mrf";            //2000er Impeller aussen
                     break;
                 case 3:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_600_auto.mrf";
-                    selectedProgram = 3;
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_30_Bilder.mrf";            //600er Pumpenkopf
                     break;
                 case 4:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_LPP_2000_auto.mrf";
-                    selectedProgram = 4;
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_30_Bilder.mrf";            //2000er Pumpenkopf
                     break;
                 case 5:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\Wandstärke_auto.mrf";
-                    selectedProgram = 5;
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_12_Bilder.mrf";            //Wandstärke 4k Impeller
                     break;
                 case 6:
-                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\Wandstärke_auto.mrf";
-                    selectedProgram = 6;
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_12_Bilder.mrf";            //Wandstärke 4k ZB
+                    break;
+                case 7:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_30_Bilder.mrf";            //LPI 30
+                    break;
+                case 8:
+                    macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_30_Bilder.mrf";            //Varia 30 Bilder
                     break;
                 default:
                     selectedProgram = programFileManager.GetNumPrograms();
@@ -311,7 +357,7 @@ namespace OCT_GUI_Application
             {
                 pictureBoxDisplay.Image = Image.FromFile(@"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\Grafiken\impeller.gif");
             }
-            else if (selectedProgram == 3 || selectedProgram == 4)
+            else if (selectedProgram == 3 || selectedProgram == 4 || selectedProgram == 8)
             {
                 pictureBoxDisplay.Image = Image.FromFile(@"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\Grafiken\pumphead.gif");
             }
