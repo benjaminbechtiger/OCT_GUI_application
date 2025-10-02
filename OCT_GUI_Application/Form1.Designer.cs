@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OCT_Window));
             this.groupBoxProgrammwahl = new System.Windows.Forms.GroupBox();
+            this.textBoxConsole = new System.Windows.Forms.RichTextBox();
             this.buttonMessStart = new System.Windows.Forms.Button();
             this.labelMessobjekt = new System.Windows.Forms.Label();
             this.comboBoxMessobjekt = new System.Windows.Forms.ComboBox();
@@ -60,7 +61,7 @@
             this.labelSelProgDisp = new System.Windows.Forms.Label();
             this.labelSelProg = new System.Windows.Forms.Label();
             this.toolTipCommands = new System.Windows.Forms.ToolTip(this.components);
-            this.textBoxConsole = new System.Windows.Forms.RichTextBox();
+            this.buttonPositioning = new System.Windows.Forms.Button();
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
@@ -70,6 +71,7 @@
             // 
             // groupBoxProgrammwahl
             // 
+            this.groupBoxProgrammwahl.Controls.Add(this.buttonPositioning);
             this.groupBoxProgrammwahl.Controls.Add(this.textBoxConsole);
             this.groupBoxProgrammwahl.Controls.Add(this.buttonMessStart);
             this.groupBoxProgrammwahl.Controls.Add(this.labelMessobjekt);
@@ -82,11 +84,22 @@
             this.groupBoxProgrammwahl.TabStop = false;
             this.groupBoxProgrammwahl.Text = "Programmauswahl";
             // 
+            // textBoxConsole
+            // 
+            this.textBoxConsole.BackColor = System.Drawing.Color.Black;
+            this.textBoxConsole.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxConsole.ForeColor = System.Drawing.Color.White;
+            this.textBoxConsole.Location = new System.Drawing.Point(34, 246);
+            this.textBoxConsole.Name = "textBoxConsole";
+            this.textBoxConsole.Size = new System.Drawing.Size(1301, 122);
+            this.textBoxConsole.TabIndex = 5;
+            this.textBoxConsole.Text = "";
+            // 
             // buttonMessStart
             // 
             this.buttonMessStart.BackColor = System.Drawing.Color.GreenYellow;
             this.buttonMessStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonMessStart.Location = new System.Drawing.Point(930, 59);
+            this.buttonMessStart.Location = new System.Drawing.Point(1074, 59);
             this.buttonMessStart.Name = "buttonMessStart";
             this.buttonMessStart.Size = new System.Drawing.Size(213, 119);
             this.buttonMessStart.TabIndex = 4;
@@ -129,7 +142,7 @@
             // buttonDevMode
             // 
             this.buttonDevMode.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.buttonDevMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonDevMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.buttonDevMode.Location = new System.Drawing.Point(899, 445);
             this.buttonDevMode.Name = "buttonDevMode";
             this.buttonDevMode.Size = new System.Drawing.Size(83, 50);
@@ -411,16 +424,17 @@
             this.labelSelProg.TabIndex = 0;
             this.labelSelProg.Text = "Ausgewähltes Programm:";
             // 
-            // textBoxConsole
+            // buttonPositioning
             // 
-            this.textBoxConsole.BackColor = System.Drawing.Color.Black;
-            this.textBoxConsole.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxConsole.ForeColor = System.Drawing.Color.White;
-            this.textBoxConsole.Location = new System.Drawing.Point(34, 246);
-            this.textBoxConsole.Name = "textBoxConsole";
-            this.textBoxConsole.Size = new System.Drawing.Size(1301, 122);
-            this.textBoxConsole.TabIndex = 5;
-            this.textBoxConsole.Text = "";
+            this.buttonPositioning.BackColor = System.Drawing.Color.Aqua;
+            this.buttonPositioning.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonPositioning.Location = new System.Drawing.Point(819, 61);
+            this.buttonPositioning.Name = "buttonPositioning";
+            this.buttonPositioning.Size = new System.Drawing.Size(213, 119);
+            this.buttonPositioning.TabIndex = 6;
+            this.buttonPositioning.Text = "Auf Position Bewegen";
+            this.buttonPositioning.UseVisualStyleBackColor = false;
+            this.buttonPositioning.Click += new System.EventHandler(this.buttonPositioning_Click);
             // 
             // OCT_Window
             // 
@@ -485,6 +499,7 @@
         private System.Windows.Forms.Label labelCOMport;
         private System.Windows.Forms.ToolTip toolTipCommands;
         private System.Windows.Forms.RichTextBox textBoxConsole;
+        private System.Windows.Forms.Button buttonPositioning;
     }
 }
 
