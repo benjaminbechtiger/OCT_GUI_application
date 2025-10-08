@@ -31,10 +31,11 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OCT_Window));
             this.groupBoxProgrammwahl = new System.Windows.Forms.GroupBox();
+            this.buttonPositioning = new System.Windows.Forms.Button();
             this.textBoxConsole = new System.Windows.Forms.RichTextBox();
             this.buttonMessStart = new System.Windows.Forms.Button();
             this.labelMessobjekt = new System.Windows.Forms.Label();
-            this.comboBoxMessobjekt = new System.Windows.Forms.ComboBox();
+            this.comboBoxProgramme = new System.Windows.Forms.ComboBox();
             this.buttonDevMode = new System.Windows.Forms.Button();
             this.textBoxCommand = new System.Windows.Forms.TextBox();
             this.groupBoxCommand = new System.Windows.Forms.GroupBox();
@@ -61,7 +62,6 @@
             this.labelSelProgDisp = new System.Windows.Forms.Label();
             this.labelSelProg = new System.Windows.Forms.Label();
             this.toolTipCommands = new System.Windows.Forms.ToolTip(this.components);
-            this.buttonPositioning = new System.Windows.Forms.Button();
             this.groupBoxProgrammwahl.SuspendLayout();
             this.groupBoxCommand.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDisplay)).BeginInit();
@@ -75,7 +75,7 @@
             this.groupBoxProgrammwahl.Controls.Add(this.textBoxConsole);
             this.groupBoxProgrammwahl.Controls.Add(this.buttonMessStart);
             this.groupBoxProgrammwahl.Controls.Add(this.labelMessobjekt);
-            this.groupBoxProgrammwahl.Controls.Add(this.comboBoxMessobjekt);
+            this.groupBoxProgrammwahl.Controls.Add(this.comboBoxProgramme);
             this.groupBoxProgrammwahl.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBoxProgrammwahl.Location = new System.Drawing.Point(507, 37);
             this.groupBoxProgrammwahl.Name = "groupBoxProgrammwahl";
@@ -83,6 +83,18 @@
             this.groupBoxProgrammwahl.TabIndex = 0;
             this.groupBoxProgrammwahl.TabStop = false;
             this.groupBoxProgrammwahl.Text = "Programmauswahl";
+            // 
+            // buttonPositioning
+            // 
+            this.buttonPositioning.BackColor = System.Drawing.Color.Aqua;
+            this.buttonPositioning.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonPositioning.Location = new System.Drawing.Point(819, 61);
+            this.buttonPositioning.Name = "buttonPositioning";
+            this.buttonPositioning.Size = new System.Drawing.Size(213, 119);
+            this.buttonPositioning.TabIndex = 6;
+            this.buttonPositioning.Text = "Auf Position Bewegen";
+            this.buttonPositioning.UseVisualStyleBackColor = false;
+            this.buttonPositioning.Click += new System.EventHandler(this.buttonPositioning_Click);
             // 
             // textBoxConsole
             // 
@@ -118,26 +130,17 @@
             this.labelMessobjekt.TabIndex = 2;
             this.labelMessobjekt.Text = "Programm:";
             // 
-            // comboBoxMessobjekt
+            // comboBoxProgramme
             // 
-            this.comboBoxMessobjekt.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.comboBoxMessobjekt.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBoxMessobjekt.FormattingEnabled = true;
-            this.comboBoxMessobjekt.Items.AddRange(new object[] {
-            "Lunker Boden",
-            "2000er Impeller innen",
-            "2000er Impeller aussen",
-            "600er Pumpenkopf",
-            "2000er Pumpenkopf",
-            "Wandstärke 4k Impeller",
-            "Wandstärke 4k ZB",
-            "LPI 30",
-            "Varia 30 Bilder"});
-            this.comboBoxMessobjekt.Location = new System.Drawing.Point(209, 96);
-            this.comboBoxMessobjekt.Name = "comboBoxMessobjekt";
-            this.comboBoxMessobjekt.Size = new System.Drawing.Size(543, 40);
-            this.comboBoxMessobjekt.TabIndex = 0;
-            this.comboBoxMessobjekt.SelectedIndexChanged += new System.EventHandler(this.comboBoxMessobjekt_SelectedIndexChanged);
+            this.comboBoxProgramme.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.comboBoxProgramme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxProgramme.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboBoxProgramme.FormattingEnabled = true;
+            this.comboBoxProgramme.Location = new System.Drawing.Point(209, 96);
+            this.comboBoxProgramme.Name = "comboBoxProgramme";
+            this.comboBoxProgramme.Size = new System.Drawing.Size(543, 40);
+            this.comboBoxProgramme.TabIndex = 0;
+            this.comboBoxProgramme.SelectedIndexChanged += new System.EventHandler(this.comboBoxMessobjekt_SelectedIndexChanged);
             // 
             // buttonDevMode
             // 
@@ -424,18 +427,6 @@
             this.labelSelProg.TabIndex = 0;
             this.labelSelProg.Text = "Ausgewähltes Programm:";
             // 
-            // buttonPositioning
-            // 
-            this.buttonPositioning.BackColor = System.Drawing.Color.Aqua;
-            this.buttonPositioning.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonPositioning.Location = new System.Drawing.Point(819, 61);
-            this.buttonPositioning.Name = "buttonPositioning";
-            this.buttonPositioning.Size = new System.Drawing.Size(213, 119);
-            this.buttonPositioning.TabIndex = 6;
-            this.buttonPositioning.Text = "Auf Position Bewegen";
-            this.buttonPositioning.UseVisualStyleBackColor = false;
-            this.buttonPositioning.Click += new System.EventHandler(this.buttonPositioning_Click);
-            // 
             // OCT_Window
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -469,7 +460,7 @@
         #endregion
 
         private System.Windows.Forms.GroupBox groupBoxProgrammwahl;
-        private System.Windows.Forms.ComboBox comboBoxMessobjekt;
+        private System.Windows.Forms.ComboBox comboBoxProgramme;
         private System.Windows.Forms.Label labelMessobjekt;
         private System.Windows.Forms.Button buttonMessStart;
         private System.Windows.Forms.TextBox textBoxCommand;

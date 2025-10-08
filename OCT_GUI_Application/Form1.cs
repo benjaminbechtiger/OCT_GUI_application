@@ -56,7 +56,7 @@ namespace OCT_GUI_Application
         // Main Tick for continuous read/write actions and GUI update
         private void MainTimer_Tick(object sender, EventArgs e)
         {
-            buttonMessStart.Visible = comboBoxMessobjekt.SelectedIndex >= 0;
+            buttonMessStart.Visible = comboBoxProgramme.SelectedIndex >= 0;
             buttonPositioning.Visible = buttonMessStart.Visible;
 
             bool success = tmcm3110Controller.GetActualPosition_mm(0, out pos_ax0);
@@ -148,6 +148,8 @@ namespace OCT_GUI_Application
             buttonPositioning.Visible = false;
             buttonMessStart.Enabled = false;
 
+            comboBoxProgramme.DataSource = programFileManager.program_names;
+
             toolTipCommands.SetToolTip(groupBoxCommand, "CTRL + E um die Messung Zurücksetzen\n CTRL + D für Entwicklermodus");
 
             comboBoxCOMPort.Items.AddRange(SerialPort.GetPortNames());
@@ -203,8 +205,8 @@ namespace OCT_GUI_Application
             buttonPositioning.Visible = false;
             buttonMessStart.BackColor = Color.GreenYellow;
             buttonMessStart.Text = "Messung Starten";
-            comboBoxMessobjekt.Enabled = true;
-            comboBoxMessobjekt.SelectedIndex = -1;
+            comboBoxProgramme.Enabled = true;
+            comboBoxProgramme.SelectedIndex = -1;
         }
 
         // Aktion wenn Messung gestartet wird
@@ -213,7 +215,7 @@ namespace OCT_GUI_Application
             buttonMessStart.Enabled = false;
             buttonMessStart.BackColor = Color.Orange;
             buttonMessStart.Text = "Messung läuft…";
-            comboBoxMessobjekt.Enabled = false;
+            comboBoxProgramme.Enabled = false;
             Refresh();
 
             LogToConsole("Starte Makro: " + macroFile);
@@ -389,7 +391,7 @@ namespace OCT_GUI_Application
         {
             // Programmparameter updaten
             string programName;
-            selectedProgram = comboBoxMessobjekt.SelectedIndex;
+            selectedProgram = comboBoxProgramme.SelectedIndex;
             if (selectedProgram >= 0)
             {
                 targetPos0 = programFileManager.GetAxis0_Value(selectedProgram);
@@ -436,7 +438,7 @@ namespace OCT_GUI_Application
                     macroFile = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Macro-Recorder\01_Makros-OCT\01_Master-Makro\OCT_30_Bilder.mrf";            //Varia 30 Bilder
                     break;
                 default:
-                    selectedProgram = programFileManager.GetNumPrograms();
+                    selectedProgram = -1;
                     break;
             }
 
@@ -449,11 +451,11 @@ namespace OCT_GUI_Application
             {
                 pictureBoxDisplay.Image = Image.FromFile(@"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\Grafiken\impeller.gif");
             }
-            else if (selectedProgram == 3 || selectedProgram == 4 || selectedProgram == 8)
+            else if (selectedProgram == 3 || selectedProgram == 4)
             {
                 pictureBoxDisplay.Image = Image.FromFile(@"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\Grafiken\pumphead.gif");
             }
-            else if (selectedProgram == -1)
+            else
             {
                 pictureBoxDisplay.Image = null;
             }

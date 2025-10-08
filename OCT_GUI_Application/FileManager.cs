@@ -9,7 +9,7 @@ namespace OCT_GUI_Application
     class FileManager
     {
         private string csvPath = @"W:\Production\Equipment\Apparate\OCT-Anterion\03_Software\Positioniersystem\programs.csv";
-        string[] program = { "Lunker_Boden", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "Wandstärke_4k_Impeller", "Wandstärke_4k_ZB", "LPI_30", "Varia_30_Bilder", ""};
+        public string[] program_names = {"Lunker_Boden", "2000er_Impeller_innen", "2000er_Impeller_aussen", "600er_Pumpenkopf", "2000er_Pumpenkopf", "Wandstärke_4k_Impeller", "Wandstärke_4k_ZB", "LPI_30", "Varia_30_Bilder"};
 
         List<OCTProgram> programs = new List<OCTProgram>();
         OCTProgram program_settings = new OCTProgram("settings",0,0,0);
@@ -31,36 +31,60 @@ namespace OCT_GUI_Application
 
         // Programme aus .csv File laden
         public void LoadPrograms()
-        {          
+        {
+            programs.Clear();
+
             if (!File.Exists(csvPath))
             {
-                // Default values if file missing
-                programs = new List<OCTProgram>();
-
-                for (int i = 0; i < GetNumPrograms(); i++)
+                for (int i = 0; i < program_names.Length; i++)
                 {
-                    programs.Add(new OCTProgram(program[i], 0, 0, 0));
+                    programs.Add(new OCTProgram(program_names[i], 0, 0, 0));
                 }
-
-                SavePrograms(); // create file with defaults
+                SavePrograms();
                 Log("CSV file not found. Created with default values.");
+                return;
             }
-            else
+
+            var lines = File.ReadAllLines(csvPath).ToList();
+
+            for (int i = 0; i < program_names.Length; i++)
             {
-                programs.Clear();
-                foreach (var line in File.ReadAllLines(csvPath))
+                OCTProgram prog;
+
+                if (i < lines.Count)
                 {
-                    var parts = line.Split(',');
-                    if (parts.Length == program_settings.NR_PARAMETERS &&
-                        double.TryParse(parts[1], out double ax0) &&
-                        double.TryParse(parts[2], out double ax1) && 
-                        int.TryParse(parts[3], out int spdRt))
+                    var parts = lines[i].Split(',');
+
+                    double ax0 = 0, ax1 = 0;
+                    int spdRt = 0;
+
+                    bool validLine = parts.Length == program_settings.NR_PARAMETERS &&
+                                     double.TryParse(parts[1], out ax0) &&
+                                     double.TryParse(parts[2], out ax1) &&
+                                     int.TryParse(parts[3], out spdRt);
+
+                    if (!validLine || parts[0] != program_names[i])
                     {
-                        programs.Add(new OCTProgram(parts[0], ax0, ax1, spdRt));
+                        prog = new OCTProgram(program_names[i], 0, 0, 0);
+                        Log($"Program '{program_names[i]}' at index {i} corrected with default values.");
+                    }
+                    else
+                    {
+                        prog = new OCTProgram(parts[0], ax0, ax1, spdRt);
                     }
                 }
-                Log("Programs loaded from CSV.");
+                else
+                {
+                    prog = new OCTProgram(program_names[i], 0, 0, 0);
+                    Log($"Program '{program_names[i]}' added with default values.");
+                }
+
+                programs.Add(prog);
             }
+
+            // CSV aktualisieren (überschreibt falsche / fehlende Zeilen)
+            SavePrograms();
+            Log("Programs loaded successfully");
         }
 
         // Aktuelle Programmkonfiguration speichern
@@ -73,12 +97,12 @@ namespace OCT_GUI_Application
 
         public int GetNumPrograms()
         {
-            return program.Length - 1;
+            return program_names.Length;
         }
 
         public string GetProgramName(int selectedProgram)
         {
-            return program[selectedProgram];
+            return program_names[selectedProgram];
         }
 
         public double GetAxis0_Value(int selectedProgram)
